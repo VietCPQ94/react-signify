@@ -1,0 +1,20 @@
+{
+  "name": "@react/signal",
+  "description": "",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VietCPQ/react-signal.git"
+  },
+  "keywords": [],
+  "author": "Viet Cong Pham Quoc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VietCPQ/react-signal/issues"
+  },
+  "homepage": "https://github.com/VietCPQ/react-signal.git"
+}
