@@ -1,20 +1,20 @@
 {
-  "name": "@react/signal",
+  "name": "react-signify",
   "description": "",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/VietCPQ/react-signal.git"
+    "url": "https://github.com/VietCPQ/react-signify.git"
   },
   "keywords": [],
   "author": "Viet Cong Pham Quoc",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/VietCPQ/react-signal/issues"
+    "url": "https://github.com/VietCPQ/react-signify/issues"
   },
-  "homepage": "https://github.com/VietCPQ/react-signal.git"
+  "homepage": "https://github.com/VietCPQ/react-signify.git"
 }
