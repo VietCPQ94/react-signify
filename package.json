@@ -1,20 +1,48 @@
 {
   "name": "react-signify",
-  "description": "",
-  "version": "0.0.1",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "A JS library for predictable and maintainable global state management",
+  "version": "0.0.1-alpha",
+  "type": "module",
+  "homepage": "github:VietCPQ/react-signify.git",
   "repository": {
     "type": "git",
-    "url": "https://github.com/VietCPQ/react-signify.git"
+    "url": "github:VietCPQ/react-signify.git"
+  },
+  "bugs": {
+    "url": "github:VietCPQ/react-signify/issues"
   },
   "keywords": [],
+  "authors": "Viet Cong Pham Quoc <congphamquocviet@gmail.com> (https://github.com/VietCPQ)",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "prepack": "yarn build"
+  },
   "author": "Viet Cong Pham Quoc",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/VietCPQ/react-signify/issues"
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
-  "homepage": "https://github.com/VietCPQ/react-signify.git"
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/react": "^18.3.2",
+    "rollup": "^4.17.2",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  }
 }
