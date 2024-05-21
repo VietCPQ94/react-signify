@@ -42,8 +42,6 @@ function Signify<T>(this: Signify<T>, initialValue: T) {
   })();
 
   this.Wrap = ({ children }) => {
-    console.log('Wrap');
-
     const trigger = useState({})[1];
 
     useLayoutEffect(() => {

@@ -1,17 +1,27 @@
 {
   "name": "react-signify",
   "description": "A JS library for predictable and maintainable global state management",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "type": "module",
   "homepage": "github:VietCPQ/react-signify.git",
   "repository": {
     "type": "git",
-    "url": "github:VietCPQ/react-signify.git"
+    "url": "git+https://github.com/VietCPQ/react-signify.git"
   },
   "bugs": {
     "url": "github:VietCPQ/react-signify/issues"
   },
-  "keywords": [],
+  "keywords": [
+    "react",
+    "react-signify",
+    "signal",
+    "state",
+    "global state",
+    "manage state",
+    "react-signal",
+    "signals-react",
+    "re-render"
+  ],
   "authors": "Viet Cong Pham Quoc <congphamquocviet@gmail.com> (https://github.com/VietCPQ)",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -24,14 +34,14 @@
   "license": "MIT",
   "exports": {
     "./package.json": "./package.json",
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
+    ".": "./dist"
   },
   "files": [
-    "dist"
+    "dist/*"
   ],
+  "dependencies": {
+    "react": "^17.0.2"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
