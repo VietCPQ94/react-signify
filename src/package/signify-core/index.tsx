@@ -1,6 +1,6 @@
 import React, { DependencyList, memo, useLayoutEffect, useState } from 'react';
 import { TSignifyConfig } from './signify.model';
-import { cacheSyncControl, getInitialValue } from 'package/singify-cache';
+import { cacheSyncControl, getInitialValue } from '../singify-cache';
 
 declare class Signify<T = unknown> {
   constructor(initialValue: T, config: TSignifyConfig);
