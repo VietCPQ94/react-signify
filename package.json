@@ -27,6 +27,7 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "publish": "npm publish --access=public",
     "build": "rollup -c --bundleConfigAsCjs",
     "prepack": "yarn build"
   },
