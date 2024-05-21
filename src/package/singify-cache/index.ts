@@ -1,6 +1,12 @@
 import { CacheType, TCacheInfo } from './cache.model';
 
-export const getInitialValue = <T>(initialValue: T, cacheInfo: TCacheInfo = { type: CacheType.Non, key: '' }): T => {
+export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheInfo): T => {
+  if (!cacheInfo) {
+    cacheInfo = {
+      key: '',
+      type: CacheType.Non
+    };
+  }
   return {
     [CacheType.Non]: initialValue,
     [CacheType.LocalStorage]: (() => {
@@ -15,8 +21,8 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo: TCacheInfo = { ty
   }[cacheInfo.type];
 };
 
-export const cacheSyncControl = <T>(cacheInfo: TCacheInfo = { type: CacheType.Non, key: '' }, cb: (newValue: T) => void) => {
-  if (!cacheInfo.isSync) {
+export const cacheSyncControl = <T>(cb: (newValue: T) => void, cacheInfo?: TCacheInfo) => {
+  if (!cacheInfo || !cacheInfo.key || !cacheInfo.isSync) {
     return;
   }
 

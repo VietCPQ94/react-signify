@@ -3,7 +3,7 @@ import { TSignifyConfig } from './signify.model';
 import { cacheSyncControl, getInitialValue } from '../singify-cache';
 
 declare class Signify<T = unknown> {
-  constructor(initialValue: T, config: TSignifyConfig);
+  constructor(initialValue: T, config?: TSignifyConfig);
   value: T;
   use(): T;
   watch(callback: (newValue: T) => void, deps: DependencyList): void;
@@ -13,8 +13,8 @@ declare class Signify<T = unknown> {
   reset(): void;
 }
 
-function Signify<T>(this: Signify<T>, initialValue: T, config: TSignifyConfig) {
-  let _value: T = getInitialValue(initialValue, config.cache);
+function Signify<T>(this: Signify<T>, initialValue: T, config?: TSignifyConfig) {
+  let _value: T = getInitialValue(initialValue, config?.cache);
 
   const listeners = new Set<(newValue: T) => void>();
 
@@ -66,7 +66,7 @@ function Signify<T>(this: Signify<T>, initialValue: T, config: TSignifyConfig) {
   };
 
   this.html = (() => {
-    const Cmp = memo(this.use as () => React.JSX.Element, () => true);
+    const Cmp = this.use as () => React.JSX.Element;
 
     return <Cmp />;
   })();
@@ -95,11 +95,11 @@ function Signify<T>(this: Signify<T>, initialValue: T, config: TSignifyConfig) {
     this.value = initialValue;
   };
 
-  cacheSyncControl(config.cache, (newValue: T) => {
+  cacheSyncControl((newValue: T) => {
     this.value = newValue;
-  });
+  }, config?.cache);
 }
 
-export const signify = <T,>(initialValue: T, config: TSignifyConfig) => {
+export const signify = <T,>(initialValue: T, config?: TSignifyConfig) => {
   return new Signify(initialValue, config);
 };
