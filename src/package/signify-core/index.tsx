@@ -14,7 +14,7 @@ function Signify<T>(this: Signify<T>, initialValue: T) {
   const listeners = new Set<(newValue: T) => void>();
 
   const inform = () => {
-    listeners.forEach(listener => listener(_value));
+    listeners.forEach(l => l(_value));
   };
 
   this.use = () => {
