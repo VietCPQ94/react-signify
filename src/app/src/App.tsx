@@ -1,19 +1,14 @@
 import React from 'react';
-import { CacheType, signify } from './dist';
+import { signify } from './dist';
 
 const a = signify(0, {
-  cache: {
-    key: 'data',
-    type: CacheType.LocalStorage,
-    isSync: true
-  }
+  syncKey: 'key'
 });
 
 export default function App() {
   return (
     <div>
-      App
-      {a.html}
+      <h1>{a.html}</h1>
       <button onClick={() => (a.value += 1)}>UP</button>
     </div>
   );

@@ -1,12 +1,13 @@
 import React, { DependencyList, memo, useLayoutEffect, useState } from 'react';
 import { TSignifyConfig } from './signify.model';
-import { cacheSyncControl, cacheUpdateValue, getInitialValue } from '../singify-cache';
+import { cacheUpdateValue, getInitialValue } from '../singify-cache';
+import { syncSystem } from '../signify-sync';
 
 declare class Signify<T = unknown> {
   constructor(initialValue: T, config?: TSignifyConfig);
   value: T;
   use(): T;
-  watch(callback: (newValue: T) => void, deps: DependencyList): void;
+  watch(callback: (newValue: T) => void, deps?: DependencyList): void;
   html: React.JSX.Element;
   Wrap({ children }: { children: (value: T) => React.JSX.Element }): React.JSX.Element;
   HardWrap: typeof this.Wrap;
@@ -18,10 +19,15 @@ function Signify<T>(this: Signify<T>, initialValue: T, config?: TSignifyConfig) 
 
   const listeners = new Set<(newValue: T) => void>();
 
-  const inform = () => {
-    cacheUpdateValue(_value, config?.cache);
-    listeners.forEach(l => l(_value));
-  };
+  const inform = () => listeners.forEach(l => l(_value));
+
+  const syncSetter = syncSystem<T>({
+    key: config?.syncKey,
+    cb: data => {
+      _value = data;
+      inform();
+    }
+  });
 
   Object.defineProperties(this, {
     value: {
@@ -30,7 +36,8 @@ function Signify<T>(this: Signify<T>, initialValue: T, config?: TSignifyConfig) 
       },
       set(v) {
         _value = v;
-
+        cacheUpdateValue(_value, config?.cache);
+        syncSetter?.(_value);
         inform();
       },
       configurable: false,
@@ -63,7 +70,7 @@ function Signify<T>(this: Signify<T>, initialValue: T, config?: TSignifyConfig) 
       return () => {
         listeners.delete(cb);
       };
-    }, deps);
+    }, deps ?? []);
   };
 
   this.html = (() => {
@@ -95,10 +102,6 @@ function Signify<T>(this: Signify<T>, initialValue: T, config?: TSignifyConfig) 
   this.reset = () => {
     this.value = initialValue;
   };
-
-  cacheSyncControl((newValue: T) => {
-    this.value = newValue;
-  }, config?.cache);
 }
 
 export const signify = <T,>(initialValue: T, config?: TSignifyConfig) => {

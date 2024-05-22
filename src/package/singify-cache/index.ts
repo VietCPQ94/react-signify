@@ -1,6 +1,6 @@
-import { CacheType, TCacheInfo } from './cache.model';
+import { CacheType, TCacheConfig } from './cache.model';
 
-export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheInfo): T => {
+export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T => {
   if (!cacheInfo) {
     cacheInfo = {
       key: '',
@@ -21,19 +21,7 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheInfo): T =
   }[cacheInfo.type];
 };
 
-export const cacheSyncControl = <T>(cb: (newValue: T) => void, cacheInfo?: TCacheInfo) => {
-  if (!cacheInfo || !cacheInfo.key || !cacheInfo.isSync) {
-    return;
-  }
-
-  window.addEventListener('storage', function (event) {
-    if (event.key === cacheInfo.key && event.newValue) {
-      cb(JSON.parse(event.newValue));
-    }
-  });
-};
-
-export const cacheUpdateValue = <T>(newValue: T, cacheInfo?: TCacheInfo) => {
+export const cacheUpdateValue = <T>(newValue: T, cacheInfo?: TCacheConfig) => {
   if (cacheInfo?.type && cacheInfo.key) {
     localStorage.setItem(cacheInfo.key, JSON.stringify(newValue));
   }

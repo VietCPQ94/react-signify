@@ -5,8 +5,7 @@ export enum CacheType {
   //   IndexDB
 }
 
-export type TCacheInfo = {
+export type TCacheConfig = {
   type: CacheType;
   key: string;
-  isSync?: boolean;
 };

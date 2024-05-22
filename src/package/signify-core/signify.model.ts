@@ -1,5 +1,6 @@
-import { TCacheInfo } from '../singify-cache/cache.model';
+import { TCacheConfig } from '../singify-cache/cache.model';
 
 export type TSignifyConfig = {
-  cache: TCacheInfo;
+  cache?: TCacheConfig;
+  syncKey?: string;
 };

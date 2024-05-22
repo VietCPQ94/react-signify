@@ -1,9 +1,9 @@
 {
   "name": "react-signify",
   "description": "A JS library for predictable and maintainable global state management",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
-  "homepage": "github:VietCPQ/react-signify.git",
+  "homepage": "https://reactsignify.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/VietCPQ/react-signify.git"
