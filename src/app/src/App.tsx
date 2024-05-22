@@ -1,7 +1,13 @@
 import React from 'react';
-import { signify } from './dist';
+import { CacheType, signify } from './dist';
 
-const a = signify(0);
+const a = signify(0, {
+  cache: {
+    key: 'data',
+    type: CacheType.LocalStorage,
+    isSync: true
+  }
+});
 
 export default function App() {
   return (
