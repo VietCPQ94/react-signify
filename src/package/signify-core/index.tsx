@@ -1,6 +1,6 @@
 import React, { DependencyList, memo, useLayoutEffect, useState } from 'react';
 import { TSignifyConfig } from './signify.model';
-import { cacheSyncControl, getInitialValue } from '../singify-cache';
+import { cacheSyncControl, cacheUpdateValue, getInitialValue } from '../singify-cache';
 
 declare class Signify<T = unknown> {
   constructor(initialValue: T, config?: TSignifyConfig);
@@ -19,6 +19,7 @@ function Signify<T>(this: Signify<T>, initialValue: T, config?: TSignifyConfig) 
   const listeners = new Set<(newValue: T) => void>();
 
   const inform = () => {
+    cacheUpdateValue(_value, config?.cache);
     listeners.forEach(l => l(_value));
   };
 

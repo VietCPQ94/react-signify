@@ -32,3 +32,9 @@ export const cacheSyncControl = <T>(cb: (newValue: T) => void, cacheInfo?: TCach
     }
   });
 };
+
+export const cacheUpdateValue = <T>(newValue: T, cacheInfo?: TCacheInfo) => {
+  if (cacheInfo?.type && cacheInfo.key) {
+    localStorage.setItem(cacheInfo.key, JSON.stringify(newValue));
+  }
+};
