@@ -4,11 +4,11 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheInfo): T =
   if (!cacheInfo) {
     cacheInfo = {
       key: '',
-      type: CacheType.Non
+      type: CacheType.None
     };
   }
   return {
-    [CacheType.Non]: initialValue,
+    [CacheType.None]: initialValue,
     [CacheType.LocalStorage]: (() => {
       let temp = localStorage.getItem(cacheInfo.key);
       if (!temp) {

@@ -1,5 +1,5 @@
 export enum CacheType {
-  Non = 'Non',
+  None = 'None',
   LocalStorage = 'LocalStorage'
   //   SessionStorage,
   //   IndexDB
