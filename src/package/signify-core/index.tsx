@@ -1,109 +1,82 @@
-import React, { DependencyList, memo, useLayoutEffect, useState } from 'react';
+import { DependencyList, memo, useLayoutEffect, useState } from 'react';
+import { jsx } from 'react/jsx-runtime';
 import { TSignifyConfig } from './signify.model';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
 import { syncSystem } from '../signify-sync';
 
-declare class Signify<T = unknown> {
-  constructor(initialValue: T, config?: TSignifyConfig);
-  value: T;
-  use(): T;
-  watch(callback: (newValue: T) => void, deps?: DependencyList): void;
-  html: React.JSX.Element;
-  Wrap({ children }: { children: (value: T) => React.JSX.Element }): React.JSX.Element;
-  HardWrap: typeof this.Wrap;
-  reset(): void;
-}
+class Signify<T = unknown> {
+  private _value: T;
+  private _config?: TSignifyConfig;
+  private listeners = new Set<(newValue: T) => void>();
+  private syncSetter?: (data: T) => void;
 
-function Signify<T>(this: Signify<T>, initialValue: T, config?: TSignifyConfig) {
-  let _value: T = getInitialValue(initialValue, config?.cache);
+  constructor(initialValue: T, config?: TSignifyConfig) {
+    this._value = getInitialValue(initialValue, config?.cache);
+    this._config = config;
 
-  const listeners = new Set<(newValue: T) => void>();
+    this.syncSetter = syncSystem<T>({
+      key: config?.syncKey,
+      cb: data => {
+        this._value = data;
+        this.inform();
+      }
+    });
+  }
 
-  const inform = () => listeners.forEach(l => l(_value));
+  private inform() {
+    this.listeners.forEach(listener => listener(this._value));
+  }
 
-  const syncSetter = syncSystem<T>({
-    key: config?.syncKey,
-    cb: data => {
-      _value = data;
-      inform();
-    }
-  });
+  get value() {
+    return this._value;
+  }
 
-  Object.defineProperties(this, {
-    value: {
-      get() {
-        return _value;
-      },
-      set(v) {
-        _value = v;
-        cacheUpdateValue(_value, config?.cache);
-        syncSetter?.(_value);
-        inform();
-      },
-      configurable: false,
-      enumerable: false
-    }
-  });
+  set value(v: T) {
+    this._value = v;
+    cacheUpdateValue(this._value, this._config?.cache);
+    this.syncSetter?.(this._value);
+    this.inform();
+  }
 
-  this.use = () => {
+  use() {
     const trigger = useState({})[1];
 
     useLayoutEffect(() => {
-      const listener = () => {
-        trigger(() => ({}));
-      };
-
-      listeners.add(listener);
+      const listener = () => trigger({});
+      this.listeners.add(listener);
 
       return () => {
-        listeners.delete(listener);
+        this.listeners.delete(listener);
       };
     }, []);
 
-    return _value;
-  };
+    return this._value;
+  }
 
-  this.watch = (cb, deps) => {
+  watch(callback: (newValue: T) => void, deps?: DependencyList) {
     useLayoutEffect(() => {
-      listeners.add(cb);
-
+      this.listeners.add(callback);
       return () => {
-        listeners.delete(cb);
+        this.listeners.delete(callback);
       };
     }, deps ?? []);
+  }
+
+  html = jsx(() => {
+    const value = this.use();
+    return <>{value}</>;
+  }, {});
+
+  Wrap = ({ children }: { children: (value: T) => React.JSX.Element }) => {
+    const value = this.use();
+    return children(value);
   };
 
-  this.html = (() => {
-    const Cmp = this.use as () => React.JSX.Element;
+  HardWrap = memo(this.Wrap, () => true) as typeof this.Wrap;
 
-    return <Cmp />;
-  })();
-
-  this.Wrap = ({ children }) => {
-    const trigger = useState({})[1];
-
-    useLayoutEffect(() => {
-      const listener = () => {
-        trigger(() => ({}));
-      };
-
-      listeners.add(listener);
-
-      return () => {
-        listeners.delete(listener);
-      };
-    }, []);
-
-    return children(_value);
-  };
-
-  this.HardWrap = memo(this.Wrap, () => true) as typeof this.Wrap;
-
-  this.reset = () => {
-    this.value = initialValue;
-  };
+  reset() {
+    this.value = getInitialValue(this._value, this._config?.cache);
+  }
 }
 
-export const signify = <T,>(initialValue: T, config?: TSignifyConfig) => {
-  return new Signify(initialValue, config);
-};
+export const signify = <T,>(initialValue: T, config?: TSignifyConfig) => new Signify(initialValue, config);
