@@ -9,18 +9,27 @@ class Signify<T = unknown> {
   private _config?: TSignifyConfig;
   private listeners = new Set<(newValue: T) => void>();
   private syncSetter?: (data: T) => void;
+  private isNotEqual = <T, P>(obj1: T, obj2: P) => JSON.stringify(obj1) != JSON.stringify(obj2);
 
   constructor(initialValue: T, config?: TSignifyConfig) {
     this._value = getInitialValue(initialValue, config?.cache);
     this._config = config;
 
-    this.syncSetter = syncSystem<T>({
-      key: config?.syncKey,
-      cb: data => {
-        this._value = data;
-        this.inform();
-      }
-    });
+    if (config?.syncKey) {
+      const { post, sync } = syncSystem<T>({
+        key: config.syncKey,
+        cb: data => {
+          if (this.isNotEqual(this._value, data)) {
+            this._value = data;
+            this.inform();
+          }
+        }
+      });
+
+      this.syncSetter = post;
+
+      sync(() => this.value);
+    }
   }
 
   private inform() {
@@ -32,10 +41,13 @@ class Signify<T = unknown> {
   }
 
   set(v: T | ((prevState: T) => T)) {
-    this._value = typeof v === 'function' ? (v as (prevState: T) => T)(this.value) : v;
-    cacheUpdateValue(this._value, this._config?.cache);
-    this.syncSetter?.(this._value);
-    this.inform();
+    let tempVal = typeof v === 'function' ? (v as (prevState: T) => T)(this.value) : v;
+    if (this.isNotEqual(this._value, tempVal)) {
+      this._value = tempVal;
+      cacheUpdateValue(this._value, this._config?.cache);
+      this.syncSetter?.(this._value);
+      this.inform();
+    }
   }
 
   use() {

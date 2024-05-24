@@ -1,11 +1,17 @@
-export const syncSystem = <T>({ key, cb }: { key?: string; cb(val: T): void }) => {
-  if (key) {
-    const bc = new BroadcastChannel(`bc_${key}`);
+export const syncSystem = <T>({ key, cb }: { key: string; cb(val: T): void }) => {
+  const mainKey = `bc_${key}`;
+  const bc = new BroadcastChannel(mainKey);
 
-    bc.onmessage = e => cb(JSON.parse(e.data));
+  bc.onmessage = e => cb(e.data);
 
-    return (data: T) => {
-      bc.postMessage(JSON.stringify(data));
-    };
-  }
+  return {
+    post: (data: T) => {
+      bc.postMessage(data);
+    },
+    sync: (getData: () => T) => {
+      const bcs = new BroadcastChannel(`bcs`);
+      bcs.onmessage = e => mainKey === e.data && bc.postMessage(getData());
+      bcs.postMessage(mainKey);
+    }
+  };
 };
