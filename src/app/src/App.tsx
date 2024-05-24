@@ -17,7 +17,7 @@ export default function App() {
       <h1>{a.html}</h1>
       <a.Wrap>{data => <h1>{data}</h1>}</a.Wrap>
       <a.HardWrap>{data => <h1>{data}</h1>}</a.HardWrap>
-      <button onClick={() => (a.value += 1)}>UP</button>
+      <button onClick={() => a.set(pre => pre + 1)}>UP</button>
     </div>
   );
 }

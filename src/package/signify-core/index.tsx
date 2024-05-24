@@ -31,8 +31,8 @@ class Signify<T = unknown> {
     return this._value;
   }
 
-  set value(v: T) {
-    this._value = v;
+  set(v: T | ((prevState: T) => T)) {
+    this._value = typeof v === 'function' ? (v as (prevState: T) => T)(this.value) : v;
     cacheUpdateValue(this._value, this._config?.cache);
     this.syncSetter?.(this._value);
     this.inform();
@@ -75,7 +75,7 @@ class Signify<T = unknown> {
   HardWrap = memo(this.Wrap, () => true) as typeof this.Wrap;
 
   reset() {
-    this.value = getInitialValue(this._value, this._config?.cache);
+    this.set(getInitialValue(this._value, this._config?.cache));
   }
 }
 
