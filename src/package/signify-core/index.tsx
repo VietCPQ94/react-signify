@@ -9,7 +9,6 @@ class Signify<T = unknown> {
   private _config?: TSignifyConfig;
   private listeners = new Set<(newValue: T) => void>();
   private syncSetter?: (data: T) => void;
-  private isNotEqual = <T, P>(obj1: T, obj2: P) => JSON.stringify(obj1) != JSON.stringify(obj2);
 
   constructor(initialValue: T, config?: TSignifyConfig) {
     this._value = getInitialValue(initialValue, config?.cache);
@@ -19,10 +18,8 @@ class Signify<T = unknown> {
       const { post, sync } = syncSystem<T>({
         key: config.syncKey,
         cb: data => {
-          if (this.isNotEqual(this._value, data)) {
-            this._value = data;
-            this.inform();
-          }
+          this._value = data;
+          this.inform();
         }
       });
 
@@ -42,12 +39,10 @@ class Signify<T = unknown> {
 
   set(v: T | ((prevState: T) => T)) {
     let tempVal = typeof v === 'function' ? (v as (prevState: T) => T)(this.value) : v;
-    if (this.isNotEqual(this._value, tempVal)) {
-      this._value = tempVal;
-      cacheUpdateValue(this._value, this._config?.cache);
-      this.syncSetter?.(this._value);
-      this.inform();
-    }
+    this._value = tempVal;
+    cacheUpdateValue(this._value, this._config?.cache);
+    this.syncSetter?.(this._value);
+    this.inform();
   }
 
   use() {
