@@ -23,7 +23,7 @@
     "re-render"
   ],
   "authors": "Viet Cong Pham Quoc <congphamquocviet@gmail.com> (https://github.com/VietCPQ)",
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -36,7 +36,11 @@
   "license": "MIT",
   "exports": {
     "./package.json": "./package.json",
-    ".": "./dist"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/cjs/index.cjs"
+    }
   },
   "files": [
     "dist/*"
