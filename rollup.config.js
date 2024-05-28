@@ -15,15 +15,16 @@ export default [
     input: 'src/package/index.tsx',
     output: [
       {
+        file: packageJson.main,
+        format: 'cjs',
+        sourcemap: true
+      },
+      {
         file: packageJson.module,
         format: 'esm',
         sourcemap: true
       }
     ],
-    globals: {
-      react: 'React'
-    },
-    resolve: () => {},
     plugins: [
       alias({
         entries: [
