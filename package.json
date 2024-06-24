@@ -1,7 +1,7 @@
 {
   "name": "react-signify",
   "description": "A JS library for predictable and maintainable global state management",
-  "version": "1.1.3",
+  "version": "1.1.4-a",
   "type": "module",
   "homepage": "https://reactsignify.dev",
   "repository": {
@@ -61,6 +61,6 @@
     "typescript": "^5.4.5"
   },
   "peerDependencies": {
-    "react": "^17.0.2"
+    "react": ">=17.0.2"
   }
 }
