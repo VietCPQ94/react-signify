@@ -29,7 +29,7 @@
   "scripts": {
     "publish": "npm publish --access=public",
     "build": "rollup -c --bundleConfigAsCjs",
-    "build-test": "rollup -c --bundleConfigAsCjs && cp -r dist src/app/node_modules/react-signify",
+    "build-test": "rollup -c --bundleConfigAsCjs && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn --cwd src/app start",
     "start": "rollup -c --bundleConfigAsCjs && npm start --prefix ./src/app",
     "prepack": "yarn build"
   },

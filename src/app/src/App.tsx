@@ -1,11 +1,10 @@
-import React from 'react';
-import { CacheType, signify } from 'react-signify';
+import { signify } from 'react-signify';
 
 const a = signify(0, {
   syncKey: 'key',
   cache: {
-    key: 'key_data',
-    type: CacheType.LocalStorage
+    key: 'abc',
+    type: 'SesionStorage'
   }
 });
 
