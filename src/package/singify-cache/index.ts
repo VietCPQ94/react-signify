@@ -1,28 +1,28 @@
-import { CacheType, TCacheConfig } from './cache.model';
+import { TCacheConfig, TCacheSolution } from './cache.model';
+
+const cacheSolution: TCacheSolution = {
+  LocalStorage: localStorage,
+  SesionStorage: sessionStorage
+};
 
 export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T => {
-  if (!cacheInfo) {
-    cacheInfo = {
-      key: '',
-      type: CacheType.None
-    };
+  if (cacheInfo?.key) {
+    const mainType = cacheInfo?.type ?? 'LocalStorage';
+    const tempValue = cacheSolution[mainType].getItem(cacheInfo.key);
+
+    if (!tempValue) {
+      cacheSolution[mainType].setItem(cacheInfo.key, JSON.stringify(initialValue));
+      return initialValue;
+    } else {
+      return JSON.parse(tempValue);
+    }
   }
-  return {
-    [CacheType.None]: initialValue,
-    [CacheType.LocalStorage]: (() => {
-      let temp = localStorage.getItem(cacheInfo.key);
-      if (!temp) {
-        localStorage.setItem(cacheInfo.key, JSON.stringify(initialValue));
-        return initialValue;
-      } else {
-        return JSON.parse(temp);
-      }
-    })()
-  }[cacheInfo.type];
+
+  return initialValue;
 };
 
 export const cacheUpdateValue = <T>(newValue: T, cacheInfo?: TCacheConfig) => {
-  if (cacheInfo?.type && cacheInfo.key) {
-    localStorage.setItem(cacheInfo.key, JSON.stringify(newValue));
+  if (cacheInfo?.key) {
+    cacheSolution[cacheInfo?.type ?? 'LocalStorage'].setItem(cacheInfo.key, JSON.stringify(newValue));
   }
 };

@@ -19,6 +19,7 @@ class Signify<T = unknown> {
         key: config.syncKey,
         cb: data => {
           this._value = data;
+          cacheUpdateValue(this._value, this._config?.cache);
           this.inform();
         }
       });

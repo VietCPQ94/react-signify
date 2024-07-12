@@ -1,9 +1,9 @@
-export enum CacheType {
-  None = 'None',
-  LocalStorage = 'LocalStorage'
-}
+// Default : value only save in memory
+type TCacheType = 'LocalStorage' | 'SesionStorage';
 
 export type TCacheConfig = {
-  type: CacheType;
+  type?: TCacheType;
   key: string;
 };
+
+export type TCacheSolution = { [key in TCacheType]: Storage };
