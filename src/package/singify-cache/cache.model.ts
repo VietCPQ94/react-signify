@@ -2,8 +2,8 @@
 type TCacheType = 'LocalStorage' | 'SesionStorage';
 
 export type TCacheConfig = {
-  type?: TCacheType;
-  key: string;
+    type?: TCacheType;
+    key: string;
 };
 
 export type TCacheSolution = { [key in TCacheType]: Storage };
