@@ -7,14 +7,14 @@
 React Signify is a simple library that provides efficient management and updating of global state. It can be particularly useful in React applications to manage state and synchronize automatically when their values change.
 Advantages of the library:
 
-- Compact library
-- Simple syntax
-- Efficiently control re-render support
+-   Compact library
+-   Simple syntax
+-   Efficiently control re-render support
 
 # Project information
 
-- Git : [https://github.com/VietCPQ/react-signify](https://github.com/VietCPQ/react-signify)
-- NPM: [https://www.npmjs.com/package/react-signify](https://www.npmjs.com/package/react-signify)
+-   Git : [https://github.com/VietCPQ94/react-signify](https://github.com/VietCPQ94/react-signify)
+-   NPM: [https://www.npmjs.com/package/react-signify](https://www.npmjs.com/package/react-signify)
 
 # Installation
 
@@ -54,11 +54,11 @@ import { signify } from 'react-signify';
 const sCount = signify(0);
 
 export default function App() {
-  return (
-    <div>
-      <h1>{sCount.html}</h1>
-    </div>
-  );
+    return (
+        <div>
+            <h1>{sCount.html}</h1>
+        </div>
+    );
 }
 ```
 
@@ -72,13 +72,13 @@ import { signify } from 'react-signify';
 const sCount = signify(0);
 
 export default function App() {
-  return (
-    <div>
-      <h1>{sCount.html}</h1>
-      <button onClick={() => sCount.set(1)}>Set 1</button>
-      <button onClick={() => sCount.set(pre => pre + 1)}>UP 1</button>
-    </div>
-  );
+    return (
+        <div>
+            <h1>{sCount.html}</h1>
+            <button onClick={() => sCount.set(1)}>Set 1</button>
+            <button onClick={() => sCount.set(pre => pre + 1)}>UP 1</button>
+        </div>
+    );
 }
 ```
 
@@ -98,18 +98,18 @@ import { signify } from 'react-signify';
 const sCount = signify(0);
 
 export default function App() {
-  const countValue = sCount.use();
+    const countValue = sCount.use();
 
-  useEffect(() => {
-    console.log(countValue);
-  }, [countValue]);
+    useEffect(() => {
+        console.log(countValue);
+    }, [countValue]);
 
-  return (
-    <div>
-      <h1>{countValue}</h1>
-      <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
-    </div>
-  );
+    return (
+        <div>
+            <h1>{countValue}</h1>
+            <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
+        </div>
+    );
 }
 ```
 
@@ -126,14 +126,14 @@ import { signify } from 'react-signify';
 const sCount = signify(0);
 
 export default function App() {
-  sCount.watch(newValue => {
-    console.log(newValue);
-  }, []);
-  return (
-    <div>
-      <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
-    </div>
-  );
+    sCount.watch(newValue => {
+        console.log(newValue);
+    }, []);
+    return (
+        <div>
+            <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
+        </div>
+    );
 }
 ```
 
@@ -150,18 +150,18 @@ import { signify } from 'react-signify';
 const sCount = signify(0);
 
 export default function App() {
-  return (
-    <div>
-      <sCount.Wrap>
-        {value => (
-          <div>
-            <h1>{value}</h1>
-          </div>
-        )}
-      </sCount.Wrap>
-      <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
-    </div>
-  );
+    return (
+        <div>
+            <sCount.Wrap>
+                {value => (
+                    <div>
+                        <h1>{value}</h1>
+                    </div>
+                )}
+            </sCount.Wrap>
+            <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
+        </div>
+    );
 }
 ```
 
@@ -177,18 +177,18 @@ import { signify } from 'react-signify';
 const sCount = signify(0);
 
 export default function App() {
-  return (
-    <div>
-      <sCount.HardWrap>
-        {value => (
-          <div>
-            <h1>{value}</h1>
-          </div>
-        )}
-      </sCount.HardWrap>
-      <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
-    </div>
-  );
+    return (
+        <div>
+            <sCount.HardWrap>
+                {value => (
+                    <div>
+                        <h1>{value}</h1>
+                    </div>
+                )}
+            </sCount.HardWrap>
+            <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
+        </div>
+    );
 }
 ```
 
@@ -217,19 +217,19 @@ Tool that allows synchronizing Signify values into localstorage.
 import { CacheType, signify } from 'react-signify';
 
 const sCount = signify(0, {
-  cache: {
-    key: 'countKey',
-    type: CacheType.LocalStorage
-  }
+    cache: {
+        key: 'countKey',
+        type: CacheType.LocalStorage
+    }
 });
 
 export default function App() {
-  return (
-    <div>
-      <h1>{sCount.html}</h1>
-      <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
-    </div>
-  );
+    return (
+        <div>
+            <h1>{sCount.html}</h1>
+            <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
+        </div>
+    );
 }
 ```
 
@@ -253,16 +253,16 @@ Development features aim to synchronize the Global State of Signify across tabs 
 import { signify } from 'react-signify';
 
 const sCount = signify(0, {
-  syncKey: 'data_key'
+    syncKey: 'data_key'
 });
 
 export default function App() {
-  return (
-    <div>
-      <h1>{sCount.html}</h1>
-      <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
-    </div>
-  );
+    return (
+        <div>
+            <h1>{sCount.html}</h1>
+            <button onClick={() => sCount.set(pre => pre + 1)}>UP</button>
+        </div>
+    );
 }
 ```
 
@@ -286,4 +286,4 @@ Yes, because essentially, the component needs to re-render to update the latest 
 
 ## Does React Signify have long-term support?
 
-Yes, if the library encounters errors during usage, please submit the issue to us here: [https://github.com/VietCPQ/react-signify/issues](https://github.com/VietCPQ/react-signify/issues)
+Yes, if the library encounters errors during usage, please submit the issue to us here: [https://github.com/VietCPQ94/react-signify/issues](https://github.com/VietCPQ94/react-signify/issues)

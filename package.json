@@ -1,67 +1,67 @@
 {
-  "name": "react-signify",
-  "description": "A JS library for predictable and maintainable global state management",
-  "version": "1.1.6",
-  "type": "module",
-  "homepage": "https://reactsignify.dev",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/VietCPQ/react-signify.git"
-  },
-  "bugs": {
-    "url": "github:VietCPQ/react-signify/issues"
-  },
-  "keywords": [
-    "react",
-    "react-signify",
-    "signal",
-    "state",
-    "global state",
-    "manage state",
-    "react-signal",
-    "signals-react",
-    "re-render"
-  ],
-  "authors": "Viet Cong Pham Quoc <congphamquocviet@gmail.com> (https://github.com/VietCPQ)",
-  "main": "dist/cjs/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "publish": "npm publish --access=public",
-    "build": "rollup -c --bundleConfigAsCjs",
-    "build-test": "rollup -c --bundleConfigAsCjs && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn --cwd src/app start",
-    "start": "rollup -c --bundleConfigAsCjs && npm start --prefix ./src/app",
-    "prepack": "yarn build"
-  },
-  "author": "Viet Cong Pham Quoc",
-  "license": "MIT",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/cjs/index.cjs"
+    "name": "react-signify",
+    "description": "A JS library for predictable and maintainable global state management",
+    "version": "1.1.7",
+    "type": "module",
+    "homepage": "https://reactsignify.dev",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/VietCPQ94/react-signify.git"
+    },
+    "bugs": {
+        "url": "github:VietCPQ94/react-signify/issues"
+    },
+    "keywords": [
+        "react",
+        "react-signify",
+        "signal",
+        "state",
+        "global state",
+        "manage state",
+        "react-signal",
+        "signals-react",
+        "re-render"
+    ],
+    "authors": "Viet Cong Pham Quoc <congphamquocviet@gmail.com> (https://github.com/VietCPQ94)",
+    "main": "dist/cjs/index.js",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "publish": "npm publish --access=public",
+        "build": "rollup -c --bundleConfigAsCjs",
+        "build-test": "rollup -c --bundleConfigAsCjs && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn --cwd src/app start",
+        "start": "rollup -c --bundleConfigAsCjs && npm start --prefix ./src/app",
+        "prepack": "yarn build"
+    },
+    "author": "Viet Cong Pham Quoc",
+    "license": "MIT",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/cjs/index.cjs"
+        }
+    },
+    "files": [
+        "dist/*"
+    ],
+    "devDependencies": {
+        "@rollup/plugin-alias": "^5.1.0",
+        "@rollup/plugin-commonjs": "^25.0.8",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@rollup/plugin-typescript": "^11.1.6",
+        "@types/react": "^18.3.2",
+        "rollup": "^4.17.2",
+        "rollup-plugin-copy": "^3.5.0",
+        "rollup-plugin-dts": "^6.1.1",
+        "rollup-plugin-peer-deps-external": "^2.2.4",
+        "rollup-plugin-postcss": "^4.0.2",
+        "tslib": "^2.6.2",
+        "typescript": "^5.4.5"
+    },
+    "peerDependencies": {
+        "react": ">=17.0.2"
     }
-  },
-  "files": [
-    "dist/*"
-  ],
-  "devDependencies": {
-    "@rollup/plugin-alias": "^5.1.0",
-    "@rollup/plugin-commonjs": "^25.0.8",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@types/react": "^18.3.2",
-    "rollup": "^4.17.2",
-    "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.2",
-    "tslib": "^2.6.2",
-    "typescript": "^5.4.5"
-  },
-  "peerDependencies": {
-    "react": ">=17.0.2"
-  }
 }
