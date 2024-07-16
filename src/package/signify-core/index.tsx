@@ -1,13 +1,13 @@
 import { DependencyList, memo, useLayoutEffect, useState } from 'react';
 import { jsx } from 'react/jsx-runtime';
-import { TSetterCallback, TSignifyConfig, TSliceOmit, TWrapProps } from './signify.model';
-import { cacheUpdateValue, getInitialValue } from '../singify-cache';
 import { syncSystem } from '../signify-sync';
+import { cacheUpdateValue, getInitialValue } from '../singify-cache';
+import { TSetterCallback, TSignifyConfig, TWrapProps } from './signify.model';
 
 class Signify<T = unknown> {
   private _isRender = true;
-  private _initialValue: Readonly<T>;
-  private _value: Readonly<T>;
+  private _initialValue: T;
+  private _value: T;
   private _config?: TSignifyConfig;
   private listeners = new Set<(newValue: T) => void>();
   private syncSetter?(data: T): void;
@@ -39,8 +39,14 @@ class Signify<T = unknown> {
     }
   }
 
+  private fireUpdate() {
+    cacheUpdateValue(this.value, this._config?.cache);
+    this.syncSetter?.(this.value);
+    this.inform();
+  }
+
   get value() {
-    return this._value;
+    return this._value as Readonly<T>;
   }
 
   set(v: T | TSetterCallback<T>) {
@@ -48,10 +54,13 @@ class Signify<T = unknown> {
 
     if (!Object.is(this.value, tempVal)) {
       this._value = tempVal;
-      cacheUpdateValue(this.value, this._config?.cache);
-      this.syncSetter?.(this.value);
-      this.inform();
+      this.fireUpdate()
     }
+  }
+
+  update(cb: (value: T) => void) {
+    cb(this._value);
+    this.fireUpdate()
   }
 
   use() {
@@ -66,10 +75,10 @@ class Signify<T = unknown> {
       };
     }, []);
 
-    return this.value;
+    return this.value as Readonly<T>;
   }
 
-  watch(callback: (newValue: Readonly<T>) => void, deps?: DependencyList) {
+  watch(callback: (newValue: T) => void, deps?: DependencyList) {
     useLayoutEffect(() => {
       this.listeners.add(callback);
 
@@ -88,11 +97,45 @@ class Signify<T = unknown> {
     this.inform();
   }
 
-  slice<P>(pick: (value: Readonly<T>) => P): Omit<Signify<P>, TSliceOmit> {
-    const signifyElement = new Signify(pick(this.value));
-    this.listeners.add(value => signifyElement.set(pick(value)));
+  slice<P>(pick: (value: T) => P) {
+    let value: Readonly<P> = pick(this.value);
+    const listeners = new Set<(newValue: P) => void>();
 
-    return signifyElement;
+    this.listeners.add((v) => {
+      if (!Object.is(pick(v), value)) {
+        value = pick(v);
+        listeners.forEach(listener => listener(value));
+      }
+    });
+
+    const use = () => {
+      const trigger = useState({})[1];
+
+      useLayoutEffect(() => {
+        const listener = () => trigger({});
+        listeners.add(listener);
+
+        return () => {
+          listeners.delete(listener);
+        };
+      }, []);
+
+      return value;
+    }
+
+    const html = jsx(() => {
+      const value = use();
+      return <>{value}</>;
+    }, {})
+
+    const Wrap = ({ children }: TWrapProps<P>) => {
+      const value = use();
+      return children(value);
+    }
+
+    const HardWrap = memo(Wrap, () => true) as typeof Wrap;
+
+    return { value, use, html, Wrap, HardWrap };
   }
 
   html = jsx(() => {
