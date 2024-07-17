@@ -8,3 +8,9 @@ export type TSignifyConfig = {
 export type TSetterCallback<T> = (preValue: Readonly<T>) => T;
 
 export type TWrapProps<T> = { children(value: Readonly<T>): React.JSX.Element };
+
+export type TListeners<T> = Set<(value: T) => void>;
+
+export type TGetValueCb<T> = () => Readonly<T>;
+
+export type TUseValueCb<T> = (value: T) => void;
