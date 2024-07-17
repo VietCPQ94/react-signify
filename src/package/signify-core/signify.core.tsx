@@ -1,10 +1,10 @@
 import { DependencyList, memo, useLayoutEffect, useState } from 'react';
 import { jsx } from 'react/jsx-runtime';
-import { TWrapProps } from './signify.model';
+import { TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
 
 export const watchCore =
-    <P,>(listeners: Set<(newValue: P) => void>) =>
-    (callback: (newValue: P) => void, deps?: DependencyList) => {
+    <T,>(listeners: TListeners<T>) =>
+    (callback: TUseValueCb<T>, deps?: DependencyList) => {
         useLayoutEffect(() => {
             listeners.add(callback);
 
@@ -15,7 +15,7 @@ export const watchCore =
     };
 
 export const useCore =
-    <P,>(listeners: Set<(newValue: P) => void>, pickValue: () => Readonly<P>) =>
+    <T,>(listeners: TListeners<T>, pickValue: TGetValueCb<T>) =>
     () => {
         const trigger = useState({})[1];
 
@@ -31,11 +31,11 @@ export const useCore =
         return pickValue();
     };
 
-export const htmlCore = <P,>(u: () => Readonly<P>) => jsx(() => <>{u()}</>, {});
+export const htmlCore = <T,>(u: TGetValueCb<T>) => jsx(() => <>{u()}</>, {});
 
 export const WrapCore =
-    <P,>(u: () => Readonly<P>) =>
-    ({ children }: TWrapProps<P>) =>
+    <T,>(u: TGetValueCb<T>) =>
+    ({ children }: TWrapProps<T>) =>
         children(u());
 
-export const HardWrapCore = <P,>(u: () => Readonly<P>) => memo(WrapCore(u), () => true) as ReturnType<typeof WrapCore>;
+export const HardWrapCore = <T,>(u: TGetValueCb<T>) => memo(WrapCore(u), () => true) as ReturnType<typeof WrapCore>;

@@ -1,15 +1,15 @@
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
 import { HardWrapCore, htmlCore, useCore, watchCore, WrapCore } from './signify.core';
-import { TSetterCallback, TSignifyConfig } from './signify.model';
+import { TListeners, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
 
 class Signify<T = unknown> {
     private _isRender = true;
     private _initialValue: T;
     private _value: T;
     private _config?: TSignifyConfig;
-    private listeners = new Set<(newValue: T) => void>();
-    private syncSetter?(data: T): void;
+    private listeners: TListeners<T> = new Set();
+    private syncSetter?: TUseValueCb<T>;
 
     constructor(initialValue: T, config?: TSignifyConfig) {
         this._initialValue = initialValue;
@@ -44,8 +44,8 @@ class Signify<T = unknown> {
         this.inform();
     }
 
-    get value() {
-        return this._value as Readonly<T>;
+    get value(): Readonly<T> {
+        return this._value;
     }
 
     set(v: T | TSetterCallback<T>) {
@@ -55,11 +55,6 @@ class Signify<T = unknown> {
             this._value = tempVal;
             this.fireUpdate();
         }
-    }
-
-    update(cb: (value: T) => void) {
-        cb(this._value);
-        this.fireUpdate();
     }
 
     stop() {
@@ -83,7 +78,7 @@ class Signify<T = unknown> {
 
     slice<P>(pick: (v: T) => P) {
         let value: Readonly<P> = pick(this.value);
-        const listeners = new Set<(newValue: P) => void>();
+        const listeners: TListeners<P> = new Set();
 
         this.listeners.add(v => {
             if (!Object.is(pick(v), value)) {
@@ -93,11 +88,12 @@ class Signify<T = unknown> {
         });
 
         const use = useCore(listeners, () => value);
+        const watch = watchCore(listeners);
         const html = htmlCore(use);
         const Wrap = WrapCore(use);
         const HardWrap = HardWrapCore(use);
 
-        return { value, use, html, Wrap, HardWrap };
+        return { value, use, watch, html, Wrap, HardWrap };
     }
 }
 
