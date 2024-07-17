@@ -10,12 +10,12 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T
         const mainType = cacheInfo?.type ?? 'LocalStorage';
         const tempValue = cacheSolution[mainType].getItem(cacheInfo.key);
 
-        if (!tempValue) {
-            cacheSolution[mainType].setItem(cacheInfo.key, JSON.stringify(initialValue));
-            return initialValue;
-        } else {
+        if (tempValue) {
             return JSON.parse(tempValue);
         }
+
+        cacheSolution[mainType].setItem(cacheInfo.key, JSON.stringify(initialValue));
+        return initialValue;
     }
 
     return initialValue;
