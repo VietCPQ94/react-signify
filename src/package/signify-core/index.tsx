@@ -78,7 +78,7 @@ class Signify<T = unknown> {
     HardWrap = HardWrapCore(this.use);
 
     reset() {
-        this.set(getInitialValue(this._initialValue, this._config?.cache));
+        this.set(this._initialValue);
     }
 
     slice<P>(pick: (v: T) => P) {
