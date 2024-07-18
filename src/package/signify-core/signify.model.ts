@@ -14,3 +14,5 @@ export type TListeners<T> = Set<(value: T) => void>;
 export type TGetValueCb<T> = () => Readonly<T>;
 
 export type TUseValueCb<T> = (value: T) => void;
+
+export type TOmitHtml<T, P> = T extends string | number ? P : Omit<P, 'html'>;

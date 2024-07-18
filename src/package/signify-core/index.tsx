@@ -1,7 +1,7 @@
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
 import { HardWrapCore, htmlCore, useCore, watchCore, WrapCore } from './signify.core';
-import { TListeners, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
+import { TListeners, TOmitHtml, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
 
 class Signify<T = unknown> {
     private _isRender = true;
@@ -9,7 +9,7 @@ class Signify<T = unknown> {
     private _value: T;
     private _config?: TSignifyConfig;
     private listeners: TListeners<T> = new Set();
-    private syncSetter?: TUseValueCb<T>;
+    private syncSetter!: TUseValueCb<T>;
 
     constructor(initialValue: T, config?: TSignifyConfig) {
         this._initialValue = initialValue;
@@ -40,7 +40,7 @@ class Signify<T = unknown> {
 
     private fireUpdate() {
         cacheUpdateValue(this.value, this._config?.cache);
-        this.syncSetter?.(this.value);
+        this.syncSetter(this.value);
         this.inform();
     }
 
@@ -66,15 +66,15 @@ class Signify<T = unknown> {
         this.inform();
     }
 
+    reset() {
+        this.set(this._initialValue);
+    }
+
     use = useCore(this.listeners, () => this.value);
     watch = watchCore(this.listeners);
     html = htmlCore(this.use);
     Wrap = WrapCore(this.use);
     HardWrap = HardWrapCore(this.use);
-
-    reset() {
-        this.set(this._initialValue);
-    }
 
     slice<P>(pick: (v: T) => P) {
         let value: Readonly<P> = pick(this.value);
@@ -88,13 +88,10 @@ class Signify<T = unknown> {
         });
 
         const use = useCore(listeners, () => value);
-        const watch = watchCore(listeners);
-        const html = htmlCore(use);
-        const Wrap = WrapCore(use);
-        const HardWrap = HardWrapCore(use);
+        const control = { value, use, watch: watchCore(listeners), html: htmlCore(use), Wrap: WrapCore(use), HardWrap: HardWrapCore(use) };
 
-        return { value, use, watch, html, Wrap, HardWrap };
+        return control as TOmitHtml<P, typeof control>;
     }
 }
 
-export const signify = <T,>(initialValue: T, config?: TSignifyConfig) => new Signify(initialValue, config);
+export const signify = <T,>(initialValue: T, config?: TSignifyConfig): TOmitHtml<T, Signify<T>> => new Signify(initialValue, config);
