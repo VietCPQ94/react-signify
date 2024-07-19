@@ -8,8 +8,8 @@ class Signify<T = unknown> {
     private _initialValue: T;
     private _value: T;
     private _config?: TSignifyConfig;
-    private listeners: TListeners<T> = new Set();
-    private syncSetter!: TUseValueCb<T>;
+    private _listeners: TListeners<T> = new Set();
+    private _syncSetter!: TUseValueCb<T>;
 
     constructor(initialValue: T, config?: TSignifyConfig) {
         this._initialValue = initialValue;
@@ -26,72 +26,71 @@ class Signify<T = unknown> {
                 }
             });
 
-            this.syncSetter = post;
+            this._syncSetter = post;
 
             sync(() => this.value);
         }
     }
 
-    private inform() {
-        if (this._isRender) {
-            this.listeners.forEach(listener => listener(this.value));
-        }
-    }
-
-    private fireUpdate() {
-        cacheUpdateValue(this.value, this._config?.cache);
-        this.syncSetter(this.value);
-        this.inform();
-    }
+    private inform = () => this._isRender && this._listeners.forEach(listener => listener(this.value));
 
     get value(): Readonly<T> {
         return this._value;
     }
 
-    set(v: T | TSetterCallback<T>) {
+    readonly set = (v: T | TSetterCallback<T>) => {
         let tempVal = typeof v === 'function' ? (v as TSetterCallback<T>)(this.value) : v;
 
         if (!Object.is(this.value, tempVal)) {
             this._value = tempVal;
-            this.fireUpdate();
+            cacheUpdateValue(this.value, this._config?.cache);
+            this._syncSetter(this.value);
+            this.inform();
         }
-    }
+    };
 
-    stop() {
-        this._isRender = false;
-    }
-
-    resume() {
+    readonly stop = () => (this._isRender = false);
+    readonly resume = () => {
         this._isRender = true;
         this.inform();
-    }
+    };
 
-    reset() {
-        this.set(this._initialValue);
-    }
-
-    use = useCore(this.listeners, () => this.value);
-    watch = watchCore(this.listeners);
-    html = htmlCore(this.use);
-    Wrap = WrapCore(this.use);
-    HardWrap = HardWrapCore(this.use);
-
-    slice<P>(pick: (v: T) => P) {
+    readonly reset = () => this.set(this._initialValue);
+    readonly use = useCore(this._listeners, () => this.value);
+    readonly watch = watchCore(this._listeners);
+    readonly html = htmlCore(this.use);
+    readonly Wrap = WrapCore(this.use);
+    readonly HardWrap = HardWrapCore(this.use);
+    readonly slice = <P,>(pick: (v: T) => P) => {
         let value: Readonly<P> = pick(this.value);
+        let _isRender = true;
         const listeners: TListeners<P> = new Set();
+        const inform = () => _isRender && listeners.forEach(listener => listener(value));
 
-        this.listeners.add(v => {
+        this._listeners.add(v => {
             if (!Object.is(pick(v), value)) {
                 value = pick(v);
-                listeners.forEach(listener => listener(value));
+                inform();
             }
         });
 
         const use = useCore(listeners, () => value);
-        const control = { value, use, watch: watchCore(listeners), html: htmlCore(use), Wrap: WrapCore(use), HardWrap: HardWrapCore(use) };
+        const control = {
+            value,
+            use,
+            watch: watchCore(listeners),
+            html: htmlCore(use),
+            Wrap: WrapCore(use),
+            HardWrap: HardWrapCore(use),
+            stop: () => (_isRender = false),
+            resume: () => {
+                _isRender = true;
+                inform();
+            }
+        };
 
         return control as TOmitHtml<P, typeof control>;
-    }
+    };
 }
 
 export const signify = <T,>(initialValue: T, config?: TSignifyConfig): TOmitHtml<T, Signify<T>> => new Signify(initialValue, config);
