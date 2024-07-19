@@ -11,44 +11,63 @@ import path from 'path';
 const packageJson = require('./package.json');
 
 export default [
-  {
-    input: 'src/package/index.tsx',
-    output: [
-      {
-        file: packageJson.main,
-        format: 'cjs',
-        sourcemap: true
-      },
-      {
-        file: packageJson.module,
-        format: 'esm',
-        sourcemap: true
-      }
-    ],
-    plugins: [
-      alias({
-        entries: [
-          { find: 'react', replacement: path.resolve(__dirname, 'node_modules/react') },
-          { find: 'react-dom', replacement: path.resolve(__dirname, 'node_modules/react-dom') }
-        ]
-      }),
-      resolve({
-        extensions: ['.js', '.jsx', '.ts', '.tsx'] // Các phần mở rộng mà Rollup sẽ xử lý
-      }),
-      commonjs({
-        include: /node_modules/
-      }),
-      peerDepsExternal(),
-      typescript({ tsconfig: './tsconfig.json' }),
-      terser(),
-      postcss()
-    ],
-    external: ['react', 'react-dom']
-  },
-  {
-    input: 'src/package/index.tsx',
-    output: [{ file: packageJson.types, format: 'cjs' }],
-    plugins: [dts.default()],
-    external: [/\.css$/]
-  }
+    {
+        input: 'src/package/index.tsx',
+        output: [
+            {
+                file: packageJson.main,
+                format: 'cjs',
+                sourcemap: false
+            },
+            {
+                file: packageJson.module,
+                format: 'esm',
+                sourcemap: false
+            }
+        ],
+        plugins: [
+            alias({
+                entries: [
+                    { find: 'react', replacement: path.resolve(__dirname, 'node_modules/react') },
+                    { find: 'react-dom', replacement: path.resolve(__dirname, 'node_modules/react-dom') }
+                ]
+            }),
+            resolve({
+                extensions: ['.js', '.jsx', '.ts', '.tsx']
+            }),
+            commonjs({
+                include: /node_modules/
+            }),
+            peerDepsExternal(),
+            typescript({ tsconfig: './tsconfig.json' }),
+            terser({
+                mangle: {
+                    toplevel: true,
+                    properties: {
+                        regex: /.*/
+                    }
+                },
+                output: {
+                    comments: false
+                },
+                compress: {
+                    drop_console: true,
+                    drop_debugger: true,
+                    pure_funcs: ['console.info', 'console.debug', 'console.warn'],
+                    passes: 3,
+                    dead_code: true,
+                    keep_fargs: false,
+                    keep_fnames: false
+                }
+            }),
+            postcss()
+        ],
+        external: ['react', 'react-dom']
+    },
+    {
+        input: 'src/package/index.tsx',
+        output: [{ file: packageJson.types, format: 'cjs' }],
+        plugins: [dts.default()],
+        external: [/\.css$/]
+    }
 ];
