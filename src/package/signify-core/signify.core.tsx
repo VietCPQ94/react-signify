@@ -1,6 +1,6 @@
 import { DependencyList, memo, useLayoutEffect, useState } from 'react';
 import { jsx } from 'react/jsx-runtime';
-import { TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
+import { TconditionRender, TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
 
 export const watchCore =
     <T,>(listeners: TListeners<T>) =>
@@ -39,3 +39,8 @@ export const WrapCore =
         children(u());
 
 export const HardWrapCore = <T,>(u: TGetValueCb<T>) => memo(WrapCore(u), () => true) as ReturnType<typeof WrapCore>;
+
+export const conditionRenderCore =
+    <T,>(conditionRender?: TconditionRender<T>) =>
+    (cb: TconditionRender<T>) =>
+        (conditionRender = cb);

@@ -15,4 +15,8 @@ export type TGetValueCb<T> = () => Readonly<T>;
 
 export type TUseValueCb<T> = (value: T) => void;
 
+export type TConditionUpdate<T> = (pre: T, cur: T) => boolean;
+
+export type TconditionRender<T> = (value: T) => boolean;
+
 export type TOmitHtml<T, P> = T extends string | number ? P : Omit<P, 'html'>;

@@ -1,7 +1,7 @@
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
-import { HardWrapCore, htmlCore, useCore, watchCore, WrapCore } from './signify.core';
-import { TListeners, TOmitHtml, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
+import { conditionRenderCore, HardWrapCore, htmlCore, useCore, watchCore, WrapCore } from './signify.core';
+import { TconditionRender, TConditionUpdate, TListeners, TOmitHtml, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
 
 class Signify<T = unknown> {
     private _isRender = true;
@@ -10,6 +10,8 @@ class Signify<T = unknown> {
     private _config?: TSignifyConfig;
     private _listeners: TListeners<T> = new Set();
     private _syncSetter!: TUseValueCb<T>;
+    private _conditionUpdate?: TConditionUpdate<T>;
+    private _conditionRender?: TconditionRender<T>;
 
     constructor(initialValue: T, config?: TSignifyConfig) {
         this._initialValue = initialValue;
@@ -32,7 +34,11 @@ class Signify<T = unknown> {
         }
     }
 
-    private inform = () => this._isRender && this._listeners.forEach(listener => listener(this.value));
+    private inform = () => {
+        if (this._isRender && (!this._conditionRender || this._conditionRender(this.value))) {
+            this._listeners.forEach(listener => listener(this.value));
+        }
+    };
 
     get value(): Readonly<T> {
         return this._value;
@@ -41,7 +47,7 @@ class Signify<T = unknown> {
     readonly set = (v: T | TSetterCallback<T>) => {
         let tempVal = typeof v === 'function' ? (v as TSetterCallback<T>)(this.value) : v;
 
-        if (!Object.is(this.value, tempVal)) {
+        if (!Object.is(this.value, tempVal) && (!this._conditionUpdate || this._conditionUpdate(this.value, tempVal))) {
             this._value = tempVal;
             cacheUpdateValue(this.value, this._config?.cache);
             this._syncSetter(this.value);
@@ -55,6 +61,8 @@ class Signify<T = unknown> {
         this.inform();
     };
 
+    readonly conditionUpdate = (cb: TConditionUpdate<T>) => (this._conditionUpdate = cb);
+    readonly conditionRender = (cb: TconditionRender<T>) => (this._conditionRender = cb);
     readonly reset = () => this.set(this._initialValue);
     readonly use = useCore(this._listeners, () => this.value);
     readonly watch = watchCore(this._listeners);
@@ -63,9 +71,14 @@ class Signify<T = unknown> {
     readonly HardWrap = HardWrapCore(this.use);
     readonly slice = <P,>(pick: (v: T) => P) => {
         let value: Readonly<P> = pick(this.value);
-        let _isRender = true;
+        let isRender = true;
+        let conditionRender: TconditionRender<P> | undefined;
         const listeners: TListeners<P> = new Set();
-        const inform = () => _isRender && listeners.forEach(listener => listener(value));
+        const inform = () => {
+            if (isRender && (!conditionRender || conditionRender(value))) {
+                listeners.forEach(listener => listener(value));
+            }
+        };
 
         this._listeners.add(v => {
             if (!Object.is(pick(v), value)) {
@@ -82,14 +95,15 @@ class Signify<T = unknown> {
             html: htmlCore(use),
             Wrap: WrapCore(use),
             HardWrap: HardWrapCore(use),
-            stop: () => (_isRender = false),
+            stop: () => (isRender = false),
             resume: () => {
-                _isRender = true;
+                isRender = true;
                 inform();
-            }
+            },
+            conditionRender: conditionRenderCore(conditionRender)
         };
 
-        return control as TOmitHtml<P, typeof control>;
+        return control as Readonly<TOmitHtml<P, typeof control>>;
     };
 }
 
