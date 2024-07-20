@@ -8,7 +8,6 @@
         "@types/react-dom": "^18.3.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-router-dom": "^6.25.1",
         "react-scripts": "5.0.1",
         "react-signify": "^1.2.1",
         "typescript": "^4.9.5",

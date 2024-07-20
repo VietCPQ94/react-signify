@@ -17,12 +17,12 @@ export default [
             {
                 file: packageJson.main,
                 format: 'cjs',
-                sourcemap: false
+                sourcemap: true
             },
             {
                 file: packageJson.module,
                 format: 'esm',
-                sourcemap: false
+                sourcemap: true
             }
         ],
         plugins: [
@@ -41,12 +41,6 @@ export default [
             peerDepsExternal(),
             typescript({ tsconfig: './tsconfig.json' }),
             terser({
-                mangle: {
-                    toplevel: true,
-                    properties: {
-                        regex: /.*/
-                    }
-                },
                 output: {
                     comments: false
                 },

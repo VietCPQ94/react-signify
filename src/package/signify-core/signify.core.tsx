@@ -38,7 +38,7 @@ export const WrapCore =
     ({ children }: TWrapProps<T>) =>
         children(u());
 
-export const HardWrapCore = <T,>(u: TGetValueCb<T>) => memo(WrapCore(u), () => true) as ReturnType<typeof WrapCore>;
+export const HardWrapCore = <T,>(u: TGetValueCb<T>) => memo(WrapCore<T>(u), () => true) as ReturnType<typeof WrapCore<T>>;
 
 export const conditionRenderCore =
     <T,>(conditionRender?: TconditionRender<T>) =>

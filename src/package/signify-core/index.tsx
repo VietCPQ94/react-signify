@@ -9,7 +9,7 @@ class Signify<T = unknown> {
     private _value: T;
     private _config?: TSignifyConfig;
     private _listeners: TListeners<T> = new Set();
-    private _syncSetter!: TUseValueCb<T>;
+    private _syncSetter?: TUseValueCb<T>;
     private _conditionUpdate?: TConditionUpdate<T>;
     private _conditionRender?: TconditionRender<T>;
 
@@ -50,12 +50,14 @@ class Signify<T = unknown> {
         if (!Object.is(this.value, tempVal) && (!this._conditionUpdate || this._conditionUpdate(this.value, tempVal))) {
             this._value = tempVal;
             cacheUpdateValue(this.value, this._config?.cache);
-            this._syncSetter(this.value);
+            this._syncSetter?.(this.value);
             this.inform();
         }
     };
 
-    readonly stop = () => (this._isRender = false);
+    readonly stop = () => {
+        this._isRender = false;
+    };
     readonly resume = () => {
         this._isRender = true;
         this.inform();
@@ -102,6 +104,12 @@ class Signify<T = unknown> {
             },
             conditionRender: conditionRenderCore(conditionRender)
         };
+
+        Object.defineProperty(control, 'value', {
+            get: () => value,
+            enumerable: false,
+            configurable: false
+        });
 
         return control as Readonly<TOmitHtml<P, typeof control>>;
     };
