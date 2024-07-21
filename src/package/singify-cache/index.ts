@@ -15,10 +15,9 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T
         }
 
         cacheSolution[mainType].setItem(cacheInfo.key, JSON.stringify(initialValue));
-        return initialValue;
     }
 
-    return initialValue;
+    return JSON.parse(JSON.stringify(initialValue));
 };
 
 export const cacheUpdateValue = <T>(newValue: T, cacheInfo?: TCacheConfig) => {
