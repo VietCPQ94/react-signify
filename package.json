@@ -29,7 +29,7 @@
     "scripts": {
         "publish": "npm publish --access=public",
         "app-start": "yarn --cwd src/app start",
-        "app-test": "yarn --cwd src/app test",
+        "app-test": "yarn --cwd src/app test --watchAll",
         "build": "rollup -c --bundleConfigAsCjs",
         "build-test": "yarn build && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn app-start",
         "test": "yarn build && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn app-test",
