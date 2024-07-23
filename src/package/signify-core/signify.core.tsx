@@ -15,8 +15,8 @@ export const watchCore =
     };
 
 export const useCore =
-    <T,>(listeners: TListeners<T>, pickValue: TGetValueCb<T>) =>
-    () => {
+    <T,>(listeners: Set<(value: T) => void>, pickValue: () => T) =>
+    <P = undefined,>(pick?: (v: T) => P) => {
         const trigger = useState({})[1];
 
         useLayoutEffect(() => {
@@ -28,7 +28,9 @@ export const useCore =
             };
         }, []);
 
-        return pickValue();
+        const result = pick ? pick(pickValue()) : pickValue();
+
+        return result as P extends undefined ? T : P;
     };
 
 export const htmlCore = <T,>(u: TGetValueCb<T>) => jsx(() => <>{u()}</>, {});

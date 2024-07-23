@@ -17,6 +17,7 @@ export default function App() {
     const count = sCount.use();
     const age = ssAge.use();
     const user = sUser.use();
+    const ageFake = sUser.use(n => n.info.age);
     const [isWatch, setIsWatch] = useState(false);
     const [isWatchSlice, setIsWatchSlice] = useState(false);
     const [isWatchUser, setIsWatchUser] = useState(false);
