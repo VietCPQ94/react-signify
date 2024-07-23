@@ -73,11 +73,13 @@ export default function App() {
                 <button
                     data-testid="btn-setAge"
                     onClick={() =>
-                        sUser.set(pre => {
-                            let temp = { ...pre };
-                            temp.info.age = temp.info.age + 1;
-                            return temp;
-                        })
+                        sUser.set(pre => ({
+                            ...pre,
+                            info: {
+                                ...pre.info,
+                                age: pre.info.age + 1
+                            }
+                        }))
                     }
                 >
                     set Age
@@ -110,11 +112,13 @@ export default function App() {
                 <button
                     data-testid="btnu-set"
                     onClick={() =>
-                        sUser.set(pre => {
-                            let temp = { ...pre };
-                            temp.info.age = temp.info.age + 1;
-                            return temp;
-                        })
+                        sUser.set(pre => ({
+                            ...pre,
+                            info: {
+                                ...pre.info,
+                                age: pre.info.age + 1
+                            }
+                        }))
                     }
                 >
                     set
