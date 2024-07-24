@@ -12,12 +12,14 @@ export const sUser = signify({
 });
 
 const ssAge = sUser.slice(n => n.info.age);
+const ssInfo = sUser.slice(n => n.info);
 
 export default function App() {
     const count = sCount.use();
     const age = ssAge.use();
+    const ageSlicePick = ssInfo.use(n => n.age);
     const user = sUser.use();
-    const ageFake = sUser.use(n => n.info.age);
+    const agePick = sUser.use(n => n.info.age);
     const [isWatch, setIsWatch] = useState(false);
     const [isWatchSlice, setIsWatchSlice] = useState(false);
     const [isWatchUser, setIsWatchUser] = useState(false);
@@ -104,6 +106,7 @@ export default function App() {
             <p data-testid="ps-html">{ssAge.html}</p>
             <p data-testid="ps-value">{ssAge.value}</p>
             <p data-testid="ps-use">{age}</p>
+            <p data-testid="ps-usePick">{ageSlicePick}</p>
             <ssAge.Wrap>{n => <p data-testid="ps-wrap">{n}</p>}</ssAge.Wrap>
             <ssAge.HardWrap>{n => <p data-testid="ps-hardwrap">{n}</p>}</ssAge.HardWrap>
             <p data-testid="psw-watch">{isWatchSlice && 'OK'}</p>
@@ -147,6 +150,7 @@ export default function App() {
                 </button>
             </div>
 
+            <p data-testid="pu-valuePick">{agePick}</p>
             <p data-testid="pu-value">{sUser.value.info.age}</p>
             <p data-testid="pu-use">{user.info.age}</p>
             <sUser.Wrap>{n => <p data-testid="pu-wrap">{n.info.age}</p>}</sUser.Wrap>
