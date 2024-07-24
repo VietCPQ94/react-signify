@@ -1,6 +1,6 @@
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
-import { HardWrapCore, htmlCore, useCore, watchCore, WrapCore } from './signify.core';
+import { HardWrapCore, WrapCore, htmlCore, useCore, watchCore } from './signify.core';
 import { TConditionRendering, TConditionUpdate as TConditionUpdating, TListeners, TOmitHtml, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
 
 class Signify<T = unknown> {
@@ -78,7 +78,7 @@ class Signify<T = unknown> {
     readonly html = htmlCore(this.use);
     readonly Wrap = WrapCore(this.use);
     readonly HardWrap = HardWrapCore(this.use);
-    readonly slice = <P,>(pick: (v: T) => P) => {
+    readonly slice = <P>(pick: (v: T) => P) => {
         let value: Readonly<P> = pick(this.value);
         let isRender = true;
         let conditionRendering: TConditionRendering<P> | undefined;
@@ -123,4 +123,4 @@ class Signify<T = unknown> {
     };
 }
 
-export const signify = <T,>(initialValue: T, config?: TSignifyConfig): TOmitHtml<T, Signify<T>> => new Signify(initialValue, config);
+export const signify = <T>(initialValue: T, config?: TSignifyConfig): TOmitHtml<T, Signify<T>> => new Signify(initialValue, config);
