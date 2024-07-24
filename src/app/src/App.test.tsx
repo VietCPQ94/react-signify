@@ -192,7 +192,7 @@ describe('Object Value Testing', () => {
         checkUser('27');
         click('btnu-countDisableConditionUpdate');
         click('btnu-set');
-        checkUser('30');
+        checkUser('28');
     });
 });
 

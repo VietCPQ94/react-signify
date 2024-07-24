@@ -12,11 +12,14 @@ export const sUser = signify({
 });
 
 const ssAge = sUser.slice(n => n.info.age);
+const ssInfo = sUser.slice(n => n.info);
 
 export default function App() {
     const count = sCount.use();
     const age = ssAge.use();
+    const ageSlicePick = ssInfo.use(n => n.age);
     const user = sUser.use();
+    const agePick = sUser.use(n => n.info.age);
     const [isWatch, setIsWatch] = useState(false);
     const [isWatchSlice, setIsWatchSlice] = useState(false);
     const [isWatchUser, setIsWatchUser] = useState(false);
@@ -48,16 +51,16 @@ export default function App() {
                 <button data-testid="btn-reset" onClick={sCount.reset}>
                     reset
                 </button>
-                <button data-testid="btn-countEnableConditionRender" onClick={() => sCount.conditionRender(v => v < 1)}>
+                <button data-testid="btn-countEnableConditionRender" onClick={() => sCount.conditionRendering(v => v < 1)}>
                     Enable condition render
                 </button>
-                <button data-testid="btn-countDisableConditionRender" onClick={() => sCount.conditionRender(() => true)}>
+                <button data-testid="btn-countDisableConditionRender" onClick={() => sCount.conditionRendering(() => true)}>
                     Disable condition render
                 </button>
-                <button data-testid="btn-countEnableConditionUpdate" onClick={() => sCount.conditionUpdate(pre => pre < 1)}>
+                <button data-testid="btn-countEnableConditionUpdate" onClick={() => sCount.conditionUpdating(pre => pre < 1)}>
                     Enable condition update
                 </button>
-                <button data-testid="btn-countDisableConditionUpdate" onClick={() => sCount.conditionUpdate(() => true)}>
+                <button data-testid="btn-countDisableConditionUpdate" onClick={() => sCount.conditionUpdating(() => true)}>
                     Disable condition update
                 </button>
             </div>
@@ -73,11 +76,13 @@ export default function App() {
                 <button
                     data-testid="btn-setAge"
                     onClick={() =>
-                        sUser.set(pre => {
-                            let temp = { ...pre };
-                            temp.info.age = temp.info.age + 1;
-                            return temp;
-                        })
+                        sUser.set(pre => ({
+                            ...pre,
+                            info: {
+                                ...pre.info,
+                                age: pre.info.age + 1
+                            }
+                        }))
                     }
                 >
                     set Age
@@ -91,16 +96,17 @@ export default function App() {
                 <button data-testid="btn-resumeAge" onClick={ssAge.resume}>
                     resume
                 </button>
-                <button data-testid="btn-ageEnableConditionRender" onClick={() => ssAge.conditionRender(v => v < 29)}>
+                <button data-testid="btn-ageEnableConditionRender" onClick={() => ssAge.conditionRendering(v => v < 29)}>
                     Enable condition render
                 </button>
-                <button data-testid="btn-ageDisableConditionRender" onClick={() => ssAge.conditionRender(() => true)}>
+                <button data-testid="btn-ageDisableConditionRender" onClick={() => ssAge.conditionRendering(() => true)}>
                     Disable condition render
                 </button>
             </div>
             <p data-testid="ps-html">{ssAge.html}</p>
             <p data-testid="ps-value">{ssAge.value}</p>
             <p data-testid="ps-use">{age}</p>
+            <p data-testid="ps-usePick">{ageSlicePick}</p>
             <ssAge.Wrap>{n => <p data-testid="ps-wrap">{n}</p>}</ssAge.Wrap>
             <ssAge.HardWrap>{n => <p data-testid="ps-hardwrap">{n}</p>}</ssAge.HardWrap>
             <p data-testid="psw-watch">{isWatchSlice && 'OK'}</p>
@@ -110,11 +116,13 @@ export default function App() {
                 <button
                     data-testid="btnu-set"
                     onClick={() =>
-                        sUser.set(pre => {
-                            let temp = { ...pre };
-                            temp.info.age = temp.info.age + 1;
-                            return temp;
-                        })
+                        sUser.set(pre => ({
+                            ...pre,
+                            info: {
+                                ...pre.info,
+                                age: pre.info.age + 1
+                            }
+                        }))
                     }
                 >
                     set
@@ -128,20 +136,21 @@ export default function App() {
                 <button data-testid="btnu-reset" onClick={sUser.reset}>
                     reset
                 </button>
-                <button data-testid="btnu-countEnableConditionRender" onClick={() => sUser.conditionRender(v => v.info.age < 29)}>
+                <button data-testid="btnu-countEnableConditionRender" onClick={() => sUser.conditionRendering(v => v.info.age < 29)}>
                     Enable condition render
                 </button>
-                <button data-testid="btnu-countDisableConditionRender" onClick={() => sUser.conditionRender(() => true)}>
+                <button data-testid="btnu-countDisableConditionRender" onClick={() => sUser.conditionRendering(() => true)}>
                     Disable condition render
                 </button>
-                <button data-testid="btnu-countEnableConditionUpdate" onClick={() => sUser.conditionUpdate(pre => pre.info.age < 1)}>
+                <button data-testid="btnu-countEnableConditionUpdate" onClick={() => sUser.conditionUpdating(pre => pre.info.age < 1)}>
                     Enable condition update
                 </button>
-                <button data-testid="btnu-countDisableConditionUpdate" onClick={() => sUser.conditionUpdate(() => true)}>
+                <button data-testid="btnu-countDisableConditionUpdate" onClick={() => sUser.conditionUpdating(() => true)}>
                     Disable condition update
                 </button>
             </div>
 
+            <p data-testid="pu-valuePick">{agePick}</p>
             <p data-testid="pu-value">{sUser.value.info.age}</p>
             <p data-testid="pu-use">{user.info.age}</p>
             <sUser.Wrap>{n => <p data-testid="pu-wrap">{n.info.age}</p>}</sUser.Wrap>
