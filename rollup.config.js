@@ -12,7 +12,7 @@ const packageJson = require('./package.json');
 
 export default [
     {
-        input: 'src/package/index.tsx',
+        input: 'src/package/index.ts',
         output: [
             {
                 file: packageJson.main,
@@ -59,7 +59,7 @@ export default [
         external: ['react', 'react-dom']
     },
     {
-        input: 'src/package/index.tsx',
+        input: 'src/package/index.ts',
         output: [{ file: packageJson.types, format: 'cjs' }],
         plugins: [dts.default()],
         external: [/\.css$/]
