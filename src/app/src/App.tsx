@@ -11,6 +11,8 @@ export const sUser = signify({
     }
 });
 
+export const sLs = signify([{ count: 0 }]);
+
 const ssAge = sUser.slice(n => n.info.age);
 const ssInfo = sUser.slice(n => n.info);
 
@@ -20,9 +22,12 @@ export default function App() {
     const ageSlicePick = ssInfo.use(n => n.age);
     const user = sUser.use();
     const agePick = sUser.use(n => n.info.age);
+    const ls = sLs.use();
+    const arrayPick = sLs.use(n => n[0].count);
     const [isWatch, setIsWatch] = useState(false);
     const [isWatchSlice, setIsWatchSlice] = useState(false);
     const [isWatchUser, setIsWatchUser] = useState(false);
+    const [isWatchLs, setIsWatchLs] = useState(false);
     sCount.watch(v => {
         setIsWatch(true);
     });
@@ -35,11 +40,22 @@ export default function App() {
         setIsWatchUser(true);
     });
 
+    sLs.watch(v => {
+        setIsWatchLs(true);
+    });
+
     return (
         <>
             <h1>Normal Case</h1>
             <div>
-                <button data-testid="btn-set" onClick={() => sCount.set(pre => pre + 1)}>
+                <button
+                    data-testid="btn-set"
+                    onClick={() => {
+                        sCount.set(pre => {
+                            pre.value += 1;
+                        });
+                    }}
+                >
                     set
                 </button>
                 <button data-testid="btn-stop" onClick={sCount.stop}>
@@ -48,7 +64,12 @@ export default function App() {
                 <button data-testid="btn-resume" onClick={sCount.resume}>
                     resume
                 </button>
-                <button data-testid="btn-reset" onClick={sCount.reset}>
+                <button
+                    data-testid="btn-reset"
+                    onClick={() => {
+                        sCount.reset();
+                    }}
+                >
                     reset
                 </button>
                 <button data-testid="btn-countEnableConditionRender" onClick={() => sCount.conditionRendering(v => v < 1)}>
@@ -73,19 +94,8 @@ export default function App() {
             <hr />
             <h1>Slice</h1>
             <div>
-                <button
-                    data-testid="btn-setAge"
-                    onClick={() =>
-                        sUser.set(pre => ({
-                            ...pre,
-                            info: {
-                                ...pre.info,
-                                age: pre.info.age + 1
-                            }
-                        }))
-                    }
-                >
-                    set Age
+                <button data-testid="btn-setAge" onClick={() => sUser.set(pre => (pre.value.info.age += 1))}>
+                    Set Age
                 </button>
                 <button data-testid="btn-resetUser" onClick={sUser.reset}>
                     reset
@@ -113,18 +123,7 @@ export default function App() {
             <hr />
             <h1>Object Case</h1>
             <div>
-                <button
-                    data-testid="btnu-set"
-                    onClick={() =>
-                        sUser.set(pre => ({
-                            ...pre,
-                            info: {
-                                ...pre.info,
-                                age: pre.info.age + 1
-                            }
-                        }))
-                    }
-                >
+                <button data-testid="btnu-set" onClick={() => sUser.set(pre => (pre.value.info.age += 1))}>
                     set
                 </button>
                 <button data-testid="btnu-stop" onClick={sUser.stop}>
@@ -156,6 +155,42 @@ export default function App() {
             <sUser.Wrap>{n => <p data-testid="pu-wrap">{n.info.age}</p>}</sUser.Wrap>
             <sUser.HardWrap>{n => <p data-testid="pu-hardwrap">{n.info.age}</p>}</sUser.HardWrap>
             <p data-testid="puw-watch">{isWatchUser && 'OK'}</p>
+
+            <hr />
+            <h1>Array Case</h1>
+            <div>
+                <button data-testid="btnArr-set" onClick={() => sLs.set(pre => (pre.value[0].count += 1))}>
+                    set
+                </button>
+                <button data-testid="btnArr-stop" onClick={sLs.stop}>
+                    stop
+                </button>
+                <button data-testid="btnArr-resume" onClick={sLs.resume}>
+                    resume
+                </button>
+                <button data-testid="btnArr-reset" onClick={sLs.reset}>
+                    reset
+                </button>
+                <button data-testid="btnArr-countEnableConditionRender" onClick={() => sLs.conditionRendering(v => v[0].count < 1)}>
+                    Enable condition render
+                </button>
+                <button data-testid="btnArr-countDisableConditionRender" onClick={() => sLs.conditionRendering(() => true)}>
+                    Disable condition render
+                </button>
+                <button data-testid="btnArr-countEnableConditionUpdate" onClick={() => sLs.conditionUpdating(pre => pre[0].count < 1)}>
+                    Enable condition update
+                </button>
+                <button data-testid="btnArr-countDisableConditionUpdate" onClick={() => sLs.conditionUpdating(() => true)}>
+                    Disable condition update
+                </button>
+            </div>
+
+            <p data-testid="parr-valuePick">{arrayPick}</p>
+            <p data-testid="parr-value">{sLs.value[0].count}</p>
+            <p data-testid="parr-use">{ls[0].count}</p>
+            <sLs.Wrap>{n => <p data-testid="parr-wrap">{n[0].count}</p>}</sLs.Wrap>
+            <sLs.HardWrap>{n => <p data-testid="parr-hardwrap">{n[0].count}</p>}</sLs.HardWrap>
+            <p data-testid="parrw-watch">{isWatchLs && 'OK'}</p>
         </>
     );
 }
