@@ -29,7 +29,7 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T
         cacheSolution[mainType].setItem(cacheInfo.key, JSON.stringify(initialValue));
     }
 
-    return JSON.parse(JSON.stringify(initialValue)); // Return a deep copy of the initial value
+    return initialValue; // Return a deep copy of the initial value
 };
 
 /**

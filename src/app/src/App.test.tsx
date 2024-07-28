@@ -40,7 +40,20 @@ const keys = [
     'pu-use',
     'pu-wrap',
     'pu-hardwrap',
-    'puw-watch'
+    'puw-watch',
+    'btnArr-set',
+    'btnArr-stop',
+    'btnArr-resume',
+    'btnArr-reset',
+    'btnArr-countEnableConditionRender',
+    'btnArr-countDisableConditionRender',
+    'btnArr-countEnableConditionUpdate',
+    'btnArr-countDisableConditionUpdate',
+    'parr-valuePick',
+    'parr-value',
+    'parr-use',
+    'parr-wrap',
+    'parr-hardwrap'
 ] as const;
 
 const checkCount = (value = '0') => {
@@ -67,7 +80,15 @@ const checkUser = (value = '27') => {
         });
 };
 
-const checkWatch = (id: 'psw-watch' | 'pw-watch') => {
+const checkArr = (value = '0') => {
+    Object.values(keys)
+        .filter(n => n.includes('parr-'))
+        .forEach(n => {
+            expect(screen.getByTestId(n).innerHTML).toEqual(value);
+        });
+};
+
+const checkWatch = (id: 'psw-watch' | 'pw-watch' | 'parrw-watch') => {
     expect(screen.getByTestId(id).innerHTML).toEqual('OK');
 };
 
@@ -81,6 +102,7 @@ beforeEach(() => {
     click('btn-reset');
     click('btn-resetUser');
     click('btnu-reset');
+    click('btnArr-reset');
 });
 
 describe('Normal Value Testing', () => {
@@ -225,5 +247,61 @@ describe('Slice Testing', () => {
         click('btn-ageDisableConditionRender');
         click('btn-setAge');
         checkAge('30');
+    });
+});
+
+describe('Array Value Testing', () => {
+    test('[sLs] Test Signify and all element init successfull', () => {
+        checkArr();
+    });
+
+    test('[sLs] Test FireEvent set count', () => {
+        checkArr();
+        click('btnArr-set');
+        checkArr('1');
+    });
+
+    test('[sLs] Test FireEvent stop/resume count', () => {
+        checkArr();
+        click('btnArr-stop');
+        click('btnArr-set');
+        checkArr();
+        click('btnArr-resume');
+        checkArr('1');
+    });
+
+    test('[sLs] Test reset', () => {
+        checkArr();
+        click('btnArr-set');
+        checkArr('1');
+        click('btnArr-reset');
+        checkArr();
+    });
+
+    test('[sLs] Test watch', () => {
+        click('btnArr-set');
+        checkWatch('parrw-watch');
+    });
+
+    test('[sLs] Test condition render', () => {
+        click('btnArr-countEnableConditionRender');
+        click('btnArr-set');
+        checkArr();
+        click('btnArr-set');
+        checkArr();
+        click('btnArr-countDisableConditionRender');
+        click('btnArr-set');
+        checkArr('3');
+    });
+
+    test('[sLs] Test condition update', () => {
+        click('btnArr-countEnableConditionUpdate');
+        click('btnArr-set');
+        checkArr('1');
+        click('btnArr-set');
+        checkArr('1');
+        click('btnArr-countDisableConditionUpdate');
+        click('btnArr-set');
+        checkArr('2');
     });
 });

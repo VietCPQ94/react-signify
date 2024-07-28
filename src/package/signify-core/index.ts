@@ -1,5 +1,7 @@
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
+import { deepClone } from '../utils/objectClone';
+import { equal } from '../utils/objectCompare';
 import { HardWrapCore, WrapCore, htmlCore, useCore, watchCore } from './signify.core';
 import { TConditionRendering, TConditionUpdate as TConditionUpdating, TListeners, TOmitHtml, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
 
@@ -29,8 +31,8 @@ class Signify<T = unknown> {
      * @param config - Optional configuration settings for state management.
      */
     constructor(initialValue: T, config?: TSignifyConfig) {
-        this._initialValue = JSON.parse(JSON.stringify(initialValue)); // Deep copy of the initial value.
-        this._value = getInitialValue(initialValue, config?.cache); // Get initial value considering caching.
+        this._initialValue = initialValue; // set initial value.
+        this._value = getInitialValue(deepClone(initialValue), config?.cache); // Get initial value considering caching.
         this._config = config;
 
         // If synchronization is enabled, setup the sync system.
@@ -64,8 +66,10 @@ class Signify<T = unknown> {
      *
      * @param value - New value to set.
      */
-    private forceUpdate = (value: T) => {
-        this._value = value; // Update current value.
+    private forceUpdate = (value?: T) => {
+        if (value !== undefined) {
+            this._value = value; // Update current value.
+        }
         cacheUpdateValue(this.value, this._config?.cache); // Update cache if applicable.
         this._syncSetter?.(this.value); // Synchronize with external system if applicable.
         this.inform(); // Notify listeners about the new value.
@@ -79,15 +83,23 @@ class Signify<T = unknown> {
     }
 
     /**
-     * Setter function to update the state. Can take a new value or a callback function that receives the current value.
+     * Setter function to update the state. Can take a new value or a callback function which use to update value directly.
      *
      * @param v - New value or a callback to compute the new value based on current state.
      */
     readonly set = (v: T | TSetterCallback<T>) => {
-        let tempVal = typeof v === 'function' ? (v as TSetterCallback<T>)(this.value) : v; // Determine new value.
+        let tempVal: T;
+
+        if (typeof v === 'function') {
+            let params = { value: deepClone(this._value) };
+            (v as TSetterCallback<T>)(params); // Determine new value.
+            tempVal = params.value;
+        } else {
+            tempVal = v; // Determine new value.
+        }
 
         // Check if the new value is different and meets update conditions before updating.
-        if (!Object.is(this.value, tempVal) && (!this._conditionUpdating || this._conditionUpdating(this.value, tempVal))) {
+        if (!equal(this.value, tempVal) && (!this._conditionUpdating || this._conditionUpdating(this.value, tempVal))) {
             this.forceUpdate(tempVal); // Perform forced update if conditions are satisfied.
         }
     };
@@ -111,7 +123,7 @@ class Signify<T = unknown> {
      * Resets the state back to its initial value.
      */
     readonly reset = () => {
-        this.forceUpdate(JSON.parse(JSON.stringify(this._initialValue))); // Reset to initial value.
+        this.forceUpdate(deepClone(this._initialValue)); // Reset to initial value.
     };
 
     /**
@@ -174,7 +186,7 @@ class Signify<T = unknown> {
 
         // Add a listener to inform when the original state changes affecting the sliced output.
         this._listeners.add(() => {
-            if (!Object.is(pick(this.value), value)) {
+            if (!equal(pick(this.value), value)) {
                 inform(); // Trigger inform if sliced output has changed due to original state change.
             }
         });
