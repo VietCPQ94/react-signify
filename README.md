@@ -15,7 +15,6 @@ Advantages of the library:
 
 -   Git: [https://github.com/VietCPQ94/react-signify](https://github.com/VietCPQ94/react-signify)
 -   NPM: [https://www.npmjs.com/package/react-signify](https://www.npmjs.com/package/react-signify)
--   Guide (5 steps): [https://flo.nglearns.dev/frow/ce14be18.html](https://flo.nglearns.dev/frow/ce14be18.html)
 
 # Installation
 
@@ -31,9 +30,9 @@ yarn add react-signify
 
 # Overview
 
-## Initialization
+## Initialize
 
-You can initialize Signify in any file, refer to the following example.
+You can initialize Signify in any file, refer to the following example
 
 ```tsx
 import { signify } from 'react-signify';
@@ -43,9 +42,9 @@ const sCount = signify(0);
 
 Here we create a variable `sCount` with an initial value of `0`.
 
-## Use in many places
+## Used in many places
 
-Simple to use with module export/import tools.
+Simple to use with module export/import tool.
 Component A (export Signify)
 
 ```tsx
@@ -57,7 +56,7 @@ export default function ComponentA() {
     return (
         <div>
             <h1>{sCount.html}</h1>
-            <button onClick={() => sCount.set(pre => (pre += 1))}>UP</button>
+            <button onClick={() => sCount.set(pre => (pre.value += 1))}>UP</button>
         </div>
     );
 }
@@ -72,7 +71,7 @@ export default function ComponentB() {
     return (
         <div>
             <h1>{sCount.html}</h1>
-            <button onClick={() => sCount.set(pre => (pre += 1))}>UP</button>
+            <button onClick={() => sCount.set(pre => (pre.value += 1))}>UP</button>
         </div>
     );
 }
@@ -80,7 +79,7 @@ export default function ComponentB() {
 
 From here we can see the flexibility of Signify, simple declaration, and usage everywhere.
 
-## Basic features
+## Basic feature
 
 ### Display on the interface
 
@@ -112,7 +111,7 @@ export default function App() {
         <div>
             <h1>{sCount.html}</h1>
             <button onClick={() => sCount.set(1)}>Set 1</button>
-            <button onClick={() => sCount.set(pre => (pre += 1))}>UP 1</button>
+            <button onClick={() => sCount.set(pre => (pre.value += 1))}>UP 1</button>
         </div>
     );
 }
@@ -120,11 +119,11 @@ export default function App() {
 
 Pressing the button will change the value of Signify and automatically update it on the interface.
 
-## Advanced features
+## Advanced feature
 
 ### Use
 
-Feature allows to get the value of Signify and use it as a component state.
+Feature that allows to get the value of Signify and use it as a component state.
 
 ```tsx
 import { useEffect } from 'react';
@@ -142,7 +141,7 @@ export default function App() {
     return (
         <div>
             <h1>{countValue}</h1>
-            <button onClick={() => sCount.set(pre => (pre += 1))}>UP</button>
+            <button onClick={() => sCount.set(pre => (pre.value += 1))}>UP</button>
         </div>
     );
 }
@@ -150,7 +149,7 @@ export default function App() {
 
 ### watch
 
-Feature allows to track changes in the value of Signify safely.
+Feature that allows to track the value changes of Signify safely.
 
 ```tsx
 import { signify } from 'react-signify';
@@ -163,7 +162,7 @@ export default function App() {
     }, []);
     return (
         <div>
-            <button onClick={() => sCount.set(pre => (pre += 1))}>UP</button>
+            <button onClick={() => sCount.set(pre => (pre.value += 1))}>UP</button>
         </div>
     );
 }
@@ -171,7 +170,7 @@ export default function App() {
 
 ### Wrap
 
-Feature applies the value of Signify in a specific interface area.
+Feature to apply the value of Signify in a specific interface area.
 
 ```tsx
 import { signify } from 'react-signify';
@@ -188,7 +187,7 @@ export default function App() {
                     </div>
                 )}
             </sCount.Wrap>
-            <button onClick={() => sCount.set(pre => (pre += 1))}>UP</button>
+            <button onClick={() => sCount.set(pre => (pre.value += 1))}>UP</button>
         </div>
     );
 }
@@ -196,7 +195,7 @@ export default function App() {
 
 ### Hardwrap
 
-Applying the value of Signify in a UI area and limiting unnecessary re-renders when the parent component re-renders.
+Feature to apply the value of Signify in a UI area and restrict unnecessary re-renders when the parent component re-renders.
 
 ```tsx
 import { signify } from 'react-signify';
@@ -221,7 +220,7 @@ export default function App() {
 
 ### reset
 
-Tool allows to restore default value.
+Tool to restore the default value.
 
 ```tsx
 import { signify } from 'react-signify';
