@@ -1,5 +1,5 @@
 // Function to check if two values are equal
-export const equal = (a: any, b: any) => {
+export const deepCompare = (a: any, b: any) => {
     // If both values are strictly equal, return true
     if (a === b) return true;
 
@@ -16,7 +16,7 @@ export const equal = (a: any, b: any) => {
             // If the lengths of the arrays are different, return false
             if (length != b.length) return false;
             // Recursively check each element in the arrays
-            for (i = length; i-- !== 0; ) if (!equal(a[i], b[i])) return false;
+            for (i = length; i-- !== 0; ) if (!deepCompare(a[i], b[i])) return false;
             return true;
         }
 
@@ -41,7 +41,7 @@ export const equal = (a: any, b: any) => {
         // Recursively check each key-value pair for equality
         for (i = length; i-- !== 0; ) {
             var key = keys[i];
-            if (!equal(a[key], b[key])) return false;
+            if (!deepCompare(a[key], b[key])) return false;
         }
 
         return true; // All checks passed, the objects are equal
