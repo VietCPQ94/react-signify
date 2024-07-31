@@ -1,7 +1,7 @@
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
 import { deepClone } from '../utils/objectClone';
-import { equal } from '../utils/objectCompare';
+import { deepCompare } from '../utils/objectCompare';
 import { HardWrapCore, WrapCore, htmlCore, useCore, watchCore } from './signify.core';
 import { TConditionRendering, TConditionUpdate as TConditionUpdating, TListeners, TOmitHtml, TSetterCallback, TSignifyConfig, TUseValueCb } from './signify.model';
 
@@ -42,7 +42,7 @@ class Signify<T = unknown> {
                 cb: data => {
                     this._value = data; // Update local state with synchronized value.
                     cacheUpdateValue(this.value, this._config?.cache); // Update cache with new value.
-                    this.inform(); // Notify listeners about the state change.
+                    this._inform(); // Notify listeners about the state change.
                 }
             });
 
@@ -55,7 +55,7 @@ class Signify<T = unknown> {
     /**
      * Inform all listeners about the current value if rendering is allowed.
      */
-    private inform = () => {
+    private _inform = () => {
         if (this._isRender && (!this._conditionRendering || this._conditionRendering(this.value))) {
             this._listeners.forEach(listener => listener(this.value)); // Notify each listener with the current value.
         }
@@ -66,13 +66,13 @@ class Signify<T = unknown> {
      *
      * @param value - New value to set.
      */
-    private forceUpdate = (value?: T) => {
+    private _forceUpdate = (value?: T) => {
         if (value !== undefined) {
             this._value = value; // Update current value.
         }
         cacheUpdateValue(this.value, this._config?.cache); // Update cache if applicable.
         this._syncSetter?.(this.value); // Synchronize with external system if applicable.
-        this.inform(); // Notify listeners about the new value.
+        this._inform(); // Notify listeners about the new value.
     };
 
     /**
@@ -99,8 +99,8 @@ class Signify<T = unknown> {
         }
 
         // Check if the new value is different and meets update conditions before updating.
-        if (!equal(this.value, tempVal) && (!this._conditionUpdating || this._conditionUpdating(this.value, tempVal))) {
-            this.forceUpdate(tempVal); // Perform forced update if conditions are satisfied.
+        if (!deepCompare(this.value, tempVal) && (!this._conditionUpdating || this._conditionUpdating(this.value, tempVal))) {
+            this._forceUpdate(tempVal); // Perform forced update if conditions are satisfied.
         }
     };
 
@@ -116,14 +116,14 @@ class Signify<T = unknown> {
      */
     readonly resume = () => {
         this._isRender = true; // Enable rendering updates.
-        this.inform(); // Notify listeners of any current value changes.
+        this._inform(); // Notify listeners of any current value changes.
     };
 
     /**
      * Resets the state back to its initial value.
      */
     readonly reset = () => {
-        this.forceUpdate(deepClone(this._initialValue)); // Reset to initial value.
+        this._forceUpdate(deepClone(this._initialValue)); // Reset to initial value.
     };
 
     /**
@@ -171,46 +171,45 @@ class Signify<T = unknown> {
      * @param pick - Function that extracts a portion of the current value.
      */
     readonly slice = <P>(pick: (v: T) => P) => {
-        let value: Readonly<P> = pick(this.value); // Extracted portion of the current state.
-        let isRender = true; // Flag to manage rendering for sliced values.
-        let conditionRendering: TConditionRendering<P> | undefined; // Condition for rendering sliced values.
+        let _value: Readonly<P> = pick(this.value); // Extracted portion of the current state.
+        let _isRender = true; // Flag to manage rendering for sliced values.
+        let _conditionRendering: TConditionRendering<P> | undefined; // Condition for rendering sliced values.
         const listeners: TListeners<P> = new Set(); // Listeners for sliced values.
 
-        const inform = () => {
+        const _inform = () => {
             const temp = pick(this.value); // Get new extracted portion of the state.
-            if (isRender && (!conditionRendering || conditionRendering(temp))) {
-                value = temp; // Update sliced value if conditions are met.
+            if (_isRender && (!_conditionRendering || _conditionRendering(temp))) {
+                _value = temp; // Update sliced value if conditions are met.
                 listeners.forEach(listener => listener(temp)); // Notify listeners of sliced value change.
             }
         };
 
         // Add a listener to inform when the original state changes affecting the sliced output.
         this._listeners.add(() => {
-            if (!equal(pick(this.value), value)) {
-                inform(); // Trigger inform if sliced output has changed due to original state change.
+            if (!deepCompare(pick(this.value), _value)) {
+                _inform(); // Trigger inform if sliced output has changed due to original state change.
             }
         });
 
-        const use = useCore(listeners, () => value); // Core function for reactivity with sliced values.
+        const use = useCore(listeners, () => _value); // Core function for reactivity with sliced values.
 
         const control = {
-            value,
+            value: _value,
             use,
             watch: watchCore(listeners), // Watch changes for sliced values.
             html: htmlCore(use), // Generate HTML output for sliced values.
             Wrap: WrapCore(use), // Wrapper component for sliced values with reactivity.
             HardWrap: HardWrapCore(use), // Hard wrapper component for more control over rendering of sliced values.
-
-            stop: () => (isRender = false), // Stop rendering updates for sliced values.
+            stop: () => (_isRender = false), // Stop rendering updates for sliced values.
             resume: () => {
-                isRender = true; // Resume rendering updates for sliced values.
-                inform(); // Inform listeners about any changes after resuming.
+                _isRender = true; // Resume rendering updates for sliced values.
+                _inform(); // Inform listeners about any changes after resuming.
             },
-            conditionRendering: (cb: TConditionRendering<P>) => (conditionRendering = cb) // Set condition for rendering sliced values.
+            conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb) // Set condition for rendering sliced values.
         };
 
         Object.defineProperty(control, 'value', {
-            get: () => value, // Getter for accessing sliced value directly.
+            get: () => _value, // Getter for accessing sliced value directly.
             enumerable: false,
             configurable: false
         });
