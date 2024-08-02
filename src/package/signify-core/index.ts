@@ -1,3 +1,4 @@
+import { devTool } from '../signify-devTool';
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../singify-cache';
 import { deepClone } from '../utils/objectClone';
@@ -205,7 +206,8 @@ class Signify<T = unknown> {
                 _isRender = true; // Resume rendering updates for sliced values.
                 _inform(); // Inform listeners about any changes after resuming.
             },
-            conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb) // Set condition for rendering sliced values.
+            conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb), // Set condition for rendering sliced values.
+            DevTool: devTool(HardWrapCore(use)) // Devtool component of slice
         };
 
         Object.defineProperty(control, 'value', {
@@ -216,6 +218,11 @@ class Signify<T = unknown> {
 
         return control as Readonly<TOmitHtml<P, typeof control>>; // Return control object without HTML methods exposed directly.
     };
+
+    /**
+     * Devtool component of signify
+     */
+    readonly DevTool = devTool(this.HardWrap);
 }
 
 /**

@@ -1,0 +1,76 @@
+.signify_popup {
+    font-size: 12px;
+    width: 300px;
+    height: 300px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    position: fixed;
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.signify_popup_header {
+    cursor: move;
+    display: flex;
+    align-items: center;
+    padding: 5px 20px;
+    gap: 10px;
+    font-size: 16px;
+    color: white;
+    user-select: none;
+}
+.signify_popup_header_button {
+    cursor: pointer;
+}
+.signify_popup_header_label {
+    margin-right: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.signify_popup_resizer {
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+    border-radius: 10px 0px 10px;
+}
+.signify_popup_json_viewer {
+    margin: 0;
+    height: calc(100% - 32px);
+    overflow: auto;
+    padding: 10px 20px;
+    white-space: pre;
+    box-sizing: border-box;
+}
+.signify_popup_json_viewer::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.signify_popup_json_viewer::-webkit-scrollbar-thumb {
+    background: gray;
+}
+.signify_popup_json_viewer::-webkit-scrollbar-track {
+    background: #fff;
+}
+.signify_popup_json_key {
+    color: brown;
+}
+.signify_popup_json_string {
+    color: green;
+}
+.signify_popup_json_number {
+    color: blue;
+}
+.signify_popup_json_boolean {
+    color: purple;
+}
+.signify_popup_json_null {
+    color: gray;
+}
