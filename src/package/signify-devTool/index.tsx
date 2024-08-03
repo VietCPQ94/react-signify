@@ -15,19 +15,20 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
     memo(
         ({ name }: { name: string }) => {
             const popup = useRef<HTMLDivElement | null>(null);
-            const isDragging = useRef(false);
-            const isResizing = useRef(false);
-            const offsetX = useRef(0);
-            const offsetY = useRef(0);
+            let isDragging = false;
+            let isResizing = false;
+            let offsetX = 0;
+            let offsetY = 0;
+            let renderCount = 0;
 
             useEffect(() => {
                 const mouseMove = (e: globalThis.MouseEvent) => {
-                    if (isDragging.current && popup.current) {
-                        popup.current.style.left = `${e.clientX - offsetX.current}px`;
-                        popup.current.style.top = `${e.clientY - offsetY.current}px`;
+                    if (isDragging && popup.current) {
+                        popup.current.style.left = `${e.clientX - offsetX}px`;
+                        popup.current.style.top = `${e.clientY - offsetY}px`;
                     }
 
-                    if (isResizing.current && popup.current) {
+                    if (isResizing && popup.current) {
                         const rect = popup.current.getBoundingClientRect();
 
                         const newWidth = e.clientX - rect.left;
@@ -44,8 +45,8 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
                 };
 
                 const mouseUp = () => {
-                    isDragging.current = false;
-                    isResizing.current = false;
+                    isDragging = false;
+                    isResizing = false;
                     document.body.style.cursor = 'default';
                 };
 
@@ -60,15 +61,15 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
 
             const headerMouseDown = useCallback(({ clientX, clientY }: { clientX: number; clientY: number }) => {
                 if (popup.current) {
-                    isDragging.current = true;
+                    isDragging = true;
                     popup.current.style.zIndex = `${index++}`;
-                    offsetX.current = clientX - popup.current?.offsetLeft;
-                    offsetY.current = clientY - popup.current?.offsetTop;
+                    offsetX = clientX - popup.current?.offsetLeft;
+                    offsetY = clientY - popup.current?.offsetTop;
                 }
             }, []);
 
             const resizeMouseDown = useCallback((e: MouseEvent<ElementRef<'div'>>) => {
-                isResizing.current = true;
+                isResizing = true;
                 document.body.style.cursor = 'se-resize';
                 e.preventDefault();
             }, []);
@@ -111,7 +112,15 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
             return (
                 <div ref={popup} className="signify_popup">
                     <div style={{ backgroundColor: getRandomPastelColor() }} className="signify_popup_header" onMouseDown={headerMouseDown}>
-                        <label className="signify_popup_header_label">{name}</label>
+                        <label className="signify_popup_header_label">
+                            <HardWrap>
+                                {n => (
+                                    <>
+                                        {name} - {++renderCount}
+                                    </>
+                                )}
+                            </HardWrap>
+                        </label>
                         <span className="signify_popup_header_button" onClick={handleFontSize(true)} dangerouslySetInnerHTML={{ __html: '&bigtriangleup;' }}></span>
                         <span className="signify_popup_header_button" onClick={handleFontSize(false)} dangerouslySetInnerHTML={{ __html: '&bigtriangledown;' }}></span>
                     </div>

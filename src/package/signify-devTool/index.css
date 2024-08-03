@@ -30,6 +30,7 @@
     margin-right: auto;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-wrap: nowrap;
 }
 .signify_popup_resizer {
     width: 20px;
