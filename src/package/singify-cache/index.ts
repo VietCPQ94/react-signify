@@ -18,8 +18,8 @@ const cacheSolution: TCacheSolution = {
  */
 export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T => {
     if (cacheInfo?.key) {
-        const mainType = cacheInfo?.type ?? 'LocalStorage'; // Default to LocalStorage if no type is provided
-        const tempValue = cacheSolution[mainType].getItem(cacheInfo.key); // Retrieve item from storage
+        const mainType = cacheInfo?.type ?? 'LocalStorage', // Default to LocalStorage if no type is provided
+            tempValue = cacheSolution[mainType].getItem(cacheInfo.key); // Retrieve item from storage
 
         if (tempValue) {
             return JSON.parse(tempValue); // Return parsed value if found in storage

@@ -15,8 +15,8 @@
  *      a message is received on a global BroadcastChannel.
  */
 export const syncSystem = <T>({ key, cb }: { key: string; cb(val: T): void }) => {
-    const mainKey = `bc_${key}`;
-    const bc = new BroadcastChannel(mainKey);
+    const mainKey = `bc_${key}`,
+        bc = new BroadcastChannel(mainKey);
 
     bc.onmessage = e => cb(e.data);
 

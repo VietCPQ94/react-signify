@@ -172,18 +172,33 @@ class Signify<T = unknown> {
      * @param pick - Function that extracts a portion of the current value.
      */
     readonly slice = <P>(pick: (v: T) => P) => {
-        let _value: Readonly<P> = pick(this.value); // Extracted portion of the current state.
-        let _isRender = true; // Flag to manage rendering for sliced values.
-        let _conditionRendering: TConditionRendering<P> | undefined; // Condition for rendering sliced values.
-        const listeners: TListeners<P> = new Set(); // Listeners for sliced values.
-
-        const _inform = () => {
-            const temp = pick(this.value); // Get new extracted portion of the state.
-            if (_isRender && (!_conditionRendering || _conditionRendering(temp))) {
-                _value = temp; // Update sliced value if conditions are met.
-                listeners.forEach(listener => listener(temp)); // Notify listeners of sliced value change.
-            }
-        };
+        let _value: Readonly<P> = pick(this.value), // Extracted portion of the current state.
+            _isRender = true, // Flag to manage rendering for sliced values.
+            _conditionRendering: TConditionRendering<P> | undefined; // Condition for rendering sliced values.
+        const listeners: TListeners<P> = new Set(), // Listeners for sliced values.
+            _inform = () => {
+                const temp = pick(this.value); // Get new extracted portion of the state.
+                if (_isRender && (!_conditionRendering || _conditionRendering(temp))) {
+                    _value = temp; // Update sliced value if conditions are met.
+                    listeners.forEach(listener => listener(temp)); // Notify listeners of sliced value change.
+                }
+            },
+            use = useCore(listeners, () => _value), // Core function for reactivity with sliced values.
+            control = {
+                value: _value,
+                use,
+                watch: watchCore(listeners), // Watch changes for sliced values.
+                html: htmlCore(use), // Generate HTML output for sliced values.
+                Wrap: WrapCore(use), // Wrapper component for sliced values with reactivity.
+                HardWrap: HardWrapCore(use), // Hard wrapper component for more control over rendering of sliced values.
+                stop: () => (_isRender = false), // Stop rendering updates for sliced values.
+                resume: () => {
+                    _isRender = true; // Resume rendering updates for sliced values.
+                    _inform(); // Inform listeners about any changes after resuming.
+                },
+                conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb), // Set condition for rendering sliced values.
+                DevTool: devTool(HardWrapCore(use)) // Devtool component of slice
+            };
 
         // Add a listener to inform when the original state changes affecting the sliced output.
         this._listeners.add(() => {
@@ -191,24 +206,6 @@ class Signify<T = unknown> {
                 _inform(); // Trigger inform if sliced output has changed due to original state change.
             }
         });
-
-        const use = useCore(listeners, () => _value); // Core function for reactivity with sliced values.
-
-        const control = {
-            value: _value,
-            use,
-            watch: watchCore(listeners), // Watch changes for sliced values.
-            html: htmlCore(use), // Generate HTML output for sliced values.
-            Wrap: WrapCore(use), // Wrapper component for sliced values with reactivity.
-            HardWrap: HardWrapCore(use), // Hard wrapper component for more control over rendering of sliced values.
-            stop: () => (_isRender = false), // Stop rendering updates for sliced values.
-            resume: () => {
-                _isRender = true; // Resume rendering updates for sliced values.
-                _inform(); // Inform listeners about any changes after resuming.
-            },
-            conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb), // Set condition for rendering sliced values.
-            DevTool: devTool(HardWrapCore(use)) // Devtool component of slice
-        };
 
         Object.defineProperty(control, 'value', {
             get: () => _value, // Getter for accessing sliced value directly.
