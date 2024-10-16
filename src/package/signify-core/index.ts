@@ -16,14 +16,14 @@ import { TConditionRendering, TConditionUpdate as TConditionUpdating, TListeners
  * @template T - Type of the state value.
  */
 class Signify<T = unknown> {
-    private _isRender = true; // Indicates whether the component should re-render.
-    private _initialValue: T; // Stores the initial value of the state.
-    private _value: T; // Current value of the state.
-    private _config?: TSignifyConfig; // Configuration options for Signify.
-    private _listeners: TListeners<T> = new Set(); // Listeners for state changes.
-    private _syncSetter?: TUseValueCb<T>; // Function to synchronize state externally.
-    private _conditionUpdating?: TConditionUpdating<T>; // Condition for updating the state.
-    private _conditionRendering?: TConditionRendering<T>; // Condition for rendering.
+    #isRender = true; // Indicates whether the component should re-render.
+    #initialValue: T; // Stores the initial value of the state.
+    #value: T; // Current value of the state.
+    #config?: TSignifyConfig; // Configuration options for Signify.
+    #listeners: TListeners<T> = new Set(); // Listeners for state changes.
+    #syncSetter?: TUseValueCb<T>; // Function to synchronize state externally.
+    #conditionUpdating?: TConditionUpdating<T>; // Condition for updating the state.
+    #conditionRendering?: TConditionRendering<T>; // Condition for rendering.
 
     /**
      * Constructor to initialize the Signify instance with an initial value and optional configuration.
@@ -32,22 +32,22 @@ class Signify<T = unknown> {
      * @param config - Optional configuration settings for state management.
      */
     constructor(initialValue: T, config?: TSignifyConfig) {
-        this._initialValue = initialValue; // set initial value.
-        this._value = getInitialValue(deepClone(initialValue), config?.cache); // Get initial value considering caching.
-        this._config = config;
+        this.#initialValue = initialValue; // set initial value.
+        this.#value = getInitialValue(deepClone(initialValue), config?.cache); // Get initial value considering caching.
+        this.#config = config;
 
         // If synchronization is enabled, setup the sync system.
         if (config?.syncKey) {
             const { post, sync } = syncSystem<T>({
                 key: config.syncKey,
                 cb: data => {
-                    this._value = data; // Update local state with synchronized value.
-                    cacheUpdateValue(this.value, this._config?.cache); // Update cache with new value.
-                    this._inform(); // Notify listeners about the state change.
+                    this.#value = data; // Update local state with synchronized value.
+                    cacheUpdateValue(this.value, this.#config?.cache); // Update cache with new value.
+                    this.#inform(); // Notify listeners about the state change.
                 }
             });
 
-            this._syncSetter = post; // Assign the sync setter function.
+            this.#syncSetter = post; // Assign the sync setter function.
 
             sync(() => this.value); // Sync on value changes.
         }
@@ -56,9 +56,9 @@ class Signify<T = unknown> {
     /**
      * Inform all listeners about the current value if rendering is allowed.
      */
-    private _inform = () => {
-        if (this._isRender && (!this._conditionRendering || this._conditionRendering(this.value))) {
-            this._listeners.forEach(listener => listener(this.value)); // Notify each listener with the current value.
+    #inform = () => {
+        if (this.#isRender && (!this.#conditionRendering || this.#conditionRendering(this.value))) {
+            this.#listeners.forEach(listener => listener(this.value)); // Notify each listener with the current value.
         }
     };
 
@@ -67,20 +67,20 @@ class Signify<T = unknown> {
      *
      * @param value - New value to set.
      */
-    private _forceUpdate = (value?: T) => {
+    #forceUpdate = (value?: T) => {
         if (value !== undefined) {
-            this._value = value; // Update current value.
+            this.#value = value; // Update current value.
         }
-        cacheUpdateValue(this.value, this._config?.cache); // Update cache if applicable.
-        this._syncSetter?.(this.value); // Synchronize with external system if applicable.
-        this._inform(); // Notify listeners about the new value.
+        cacheUpdateValue(this.value, this.#config?.cache); // Update cache if applicable.
+        this.#syncSetter?.(this.value); // Synchronize with external system if applicable.
+        this.#inform(); // Notify listeners about the new value.
     };
 
     /**
      * Getter for obtaining the current value of the state.
      */
-    get value(): Readonly<T> {
-        return this._value;
+    get value(): T {
+        return this.#value;
     }
 
     /**
@@ -92,7 +92,7 @@ class Signify<T = unknown> {
         let tempVal: T;
 
         if (typeof v === 'function') {
-            let params = { value: deepClone(this._value) };
+            let params = { value: deepClone(this.#value) };
             (v as TSetterCallback<T>)(params); // Determine new value.
             tempVal = params.value;
         } else {
@@ -100,8 +100,8 @@ class Signify<T = unknown> {
         }
 
         // Check if the new value is different and meets update conditions before updating.
-        if (!deepCompare(this.value, tempVal) && (!this._conditionUpdating || this._conditionUpdating(this.value, tempVal))) {
-            this._forceUpdate(tempVal); // Perform forced update if conditions are satisfied.
+        if (!deepCompare(this.value, tempVal) && (!this.#conditionUpdating || this.#conditionUpdating(this.value, tempVal))) {
+            this.#forceUpdate(tempVal); // Perform forced update if conditions are satisfied.
         }
     };
 
@@ -109,22 +109,22 @@ class Signify<T = unknown> {
      * Stops rendering updates for this instance.
      */
     readonly stop = () => {
-        this._isRender = false; // Disable rendering updates.
+        this.#isRender = false; // Disable rendering updates.
     };
 
     /**
      * Resumes rendering updates for this instance.
      */
     readonly resume = () => {
-        this._isRender = true; // Enable rendering updates.
-        this._inform(); // Notify listeners of any current value changes.
+        this.#isRender = true; // Enable rendering updates.
+        this.#inform(); // Notify listeners of any current value changes.
     };
 
     /**
      * Resets the state back to its initial value.
      */
     readonly reset = () => {
-        this._forceUpdate(deepClone(this._initialValue)); // Reset to initial value.
+        this.#forceUpdate(deepClone(this.#initialValue)); // Reset to initial value.
     };
 
     /**
@@ -132,24 +132,24 @@ class Signify<T = unknown> {
      *
      * @param cb - Callback function for determining update conditions.
      */
-    readonly conditionUpdating = (cb: TConditionUpdating<T>) => (this._conditionUpdating = cb);
+    readonly conditionUpdating = (cb: TConditionUpdating<T>) => (this.#conditionUpdating = cb);
 
     /**
      * Sets a condition for rendering. The callback receives the current value and returns a boolean indicating whether to render.
      *
      * @param cb - Callback function for determining render conditions.
      */
-    readonly conditionRendering = (cb: TConditionRendering<T>) => (this._conditionRendering = cb);
+    readonly conditionRendering = (cb: TConditionRendering<T>) => (this.#conditionRendering = cb);
 
     /**
      * Function to use the current value in components. This provides reactivity to component updates based on state changes.
      */
-    readonly use = useCore(this._listeners, () => this.value);
+    readonly use = useCore(this.#listeners, () => this.value);
 
     /**
      * Function to watch changes on state and notify listeners accordingly.
      */
-    readonly watch = watchCore(this._listeners);
+    readonly watch = watchCore(this.#listeners);
 
     /**
      * Generates HTML output from the use function to render dynamic content based on current state.
@@ -172,7 +172,7 @@ class Signify<T = unknown> {
      * @param pick - Function that extracts a portion of the current value.
      */
     readonly slice = <P>(pick: (v: T) => P) => {
-        let _value: Readonly<P> = pick(this.value), // Extracted portion of the current state.
+        let _value: P = pick(this.value), // Extracted portion of the current state.
             _isRender = true, // Flag to manage rendering for sliced values.
             _conditionRendering: TConditionRendering<P> | undefined; // Condition for rendering sliced values.
         const listeners: TListeners<P> = new Set(), // Listeners for sliced values.
@@ -201,7 +201,7 @@ class Signify<T = unknown> {
             };
 
         // Add a listener to inform when the original state changes affecting the sliced output.
-        this._listeners.add(() => {
+        this.#listeners.add(() => {
             if (!deepCompare(pick(this.value), _value)) {
                 _inform(); // Trigger inform if sliced output has changed due to original state change.
             }
@@ -213,7 +213,7 @@ class Signify<T = unknown> {
             configurable: false
         });
 
-        return control as Readonly<TOmitHtml<P, typeof control>>; // Return control object without HTML methods exposed directly.
+        return control as TOmitHtml<P, typeof control>; // Return control object without HTML methods exposed directly.
     };
 
     /**

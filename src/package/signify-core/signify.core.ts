@@ -32,7 +32,7 @@ export const watchCore =
  */
 export const useCore =
     <T>(listeners: TListeners<T>, getValue: () => T) =>
-    <P = undefined>(pickValue: TConvertValueCb<T, P> = v => v as P) => {
+    <P = undefined>(pickValue: TConvertValueCb<T, P> = v => v as Readonly<P>) => {
         const trigger = useState({})[1];
 
         useLayoutEffect(() => {
@@ -44,7 +44,7 @@ export const useCore =
             };
         }, []);
 
-        return pickValue(getValue()) as P extends undefined ? Readonly<T> : Readonly<P>;
+        return pickValue(getValue()) as P extends undefined ? T : P;
     };
 
 /**
