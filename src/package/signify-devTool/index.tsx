@@ -1,25 +1,39 @@
-import { ElementRef, memo, MouseEvent, useCallback, useEffect, useRef } from 'react';
+import { ElementRef, memo, MouseEvent, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { HardWrapCore } from '../signify-core/signify.core';
+import { getCookie, setCookie } from '../utils/cookies';
 import './index.css';
 
 let index = 100;
 
 const getRandomPastelColor = () => {
-    const r = Math.floor(Math.random() * 128);
-    const g = Math.floor(Math.random() * 128);
-    const b = Math.floor(Math.random() * 128);
+    const r = Math.floor(Math.random() * 128),
+        g = Math.floor(Math.random() * 128),
+        b = Math.floor(Math.random() * 128);
     return `rgb(${r}, ${g}, ${b})`;
 };
 
+type TDevtool<T> = { name: string; pick?: (n: T) => any; color?: string };
+
 export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
     memo(
-        ({ name }: { name: string }) => {
+        ({ name, pick = n => n, color }: TDevtool<T>) => {
             const popup = useRef<HTMLDivElement | null>(null);
-            let isDragging = false;
-            let isResizing = false;
-            let offsetX = 0;
-            let offsetY = 0;
-            let renderCount = 0;
+            let nameCookies = `rs-${name}`,
+                isDragging = false,
+                isResizing = false,
+                offsetX = 0,
+                offsetY = 0,
+                renderCount = 0;
+
+            useLayoutEffect(() => {
+                if (popup.current) {
+                    const { x, y, h, w }: { [key: string]: string } = JSON.parse(getCookie(nameCookies) ?? '{}');
+                    x && (popup.current.style.left = x);
+                    y && (popup.current.style.top = y);
+                    w && (popup.current.style.width = w);
+                    h && (popup.current.style.height = h);
+                }
+            }, []);
 
             useEffect(() => {
                 const mouseMove = (e: globalThis.MouseEvent) => {
@@ -31,8 +45,8 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
                     if (isResizing && popup.current) {
                         const rect = popup.current.getBoundingClientRect();
 
-                        const newWidth = e.clientX - rect.left;
-                        const newHeight = e.clientY - rect.top;
+                        const newWidth = e.clientX - rect.left,
+                            newHeight = e.clientY - rect.top;
 
                         if (newWidth > 100) {
                             popup.current.style.width = `${newWidth + 10}px`;
@@ -48,6 +62,17 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
                     isDragging = false;
                     isResizing = false;
                     document.body.style.cursor = 'default';
+                    if (popup.current) {
+                        setCookie(
+                            nameCookies,
+                            JSON.stringify({
+                                x: popup.current.style.left,
+                                y: popup.current.style.top,
+                                w: popup.current.style.width,
+                                h: popup.current.style.height
+                            })
+                        );
+                    }
                 };
 
                 document.addEventListener('mousemove', mouseMove);
@@ -111,10 +136,10 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
 
             return (
                 <div ref={popup} className="signify_popup">
-                    <div style={{ backgroundColor: getRandomPastelColor() }} className="signify_popup_header" onMouseDown={headerMouseDown}>
+                    <div style={{ backgroundColor: color ?? getRandomPastelColor() }} className="signify_popup_header" onMouseDown={headerMouseDown}>
                         <label className="signify_popup_header_label">
                             <HardWrap>
-                                {n => (
+                                {() => (
                                     <>
                                         {name} - {++renderCount}
                                     </>
@@ -124,7 +149,7 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
                         <span className="signify_popup_header_button" onClick={handleFontSize(true)} dangerouslySetInnerHTML={{ __html: '&bigtriangleup;' }}></span>
                         <span className="signify_popup_header_button" onClick={handleFontSize(false)} dangerouslySetInnerHTML={{ __html: '&bigtriangledown;' }}></span>
                     </div>
-                    <HardWrap>{(n: T) => <pre className="signify_popup_json_viewer" dangerouslySetInnerHTML={{ __html: syntaxHighlight(JSON.stringify(n, null, 2)) }}></pre>}</HardWrap>
+                    <HardWrap>{(n: T) => <pre className="signify_popup_json_viewer" dangerouslySetInnerHTML={{ __html: syntaxHighlight(JSON.stringify(pick(n), null, 2)) }}></pre>}</HardWrap>
 
                     <div onMouseDown={resizeMouseDown} className="signify_popup_resizer"></div>
                 </div>
