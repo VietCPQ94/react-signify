@@ -21,6 +21,7 @@ class Signify<T = unknown> {
     #value: T; // Current value of the state.
     #config?: TSignifyConfig; // Configuration options for Signify.
     #listeners: TListeners<T> = new Set(); // Listeners for state changes.
+    #coreListeners: TListeners<T> = new Set(); // Listeners for state changes which check every change of state1.
     #syncSetter?: TUseValueCb<T>; // Function to synchronize state externally.
     #conditionUpdating?: TConditionUpdating<T>; // Condition for updating the state.
     #conditionRendering?: TConditionRendering<T>; // Condition for rendering.
@@ -56,10 +57,12 @@ class Signify<T = unknown> {
     /**
      * Inform all listeners about the current value if rendering is allowed.
      */
-    #inform = () => {
+    #inform = (isEnableCore = true) => {
         if (this.#isRender && (!this.#conditionRendering || this.#conditionRendering(this.value))) {
             this.#listeners.forEach(listener => listener(this.value)); // Notify each listener with the current value.
         }
+
+        isEnableCore && this.#coreListeners.forEach(listener => listener(this.value));
     };
 
     /**
@@ -117,7 +120,7 @@ class Signify<T = unknown> {
      */
     readonly resume = () => {
         this.#isRender = true; // Enable rendering updates.
-        this.#inform(); // Notify listeners of any current value changes.
+        this.#inform(false); // Notify listeners of any current value changes.
     };
 
     /**
@@ -149,7 +152,7 @@ class Signify<T = unknown> {
     /**
      * Function to watch changes on state and notify listeners accordingly.
      */
-    readonly watch = watchCore(this.#listeners);
+    readonly watch = watchCore(this.#coreListeners);
 
     /**
      * Generates HTML output from the use function to render dynamic content based on current state.
@@ -175,29 +178,33 @@ class Signify<T = unknown> {
         let _value: P = pick(this.value), // Extracted portion of the current state.
             _isRender = true, // Flag to manage rendering for sliced values.
             _conditionRendering: TConditionRendering<P> | undefined; // Condition for rendering sliced values.
-        const listeners: TListeners<P> = new Set(), // Listeners for sliced values.
-            _inform = () => {
+        const _listeners: TListeners<P> = new Set(), // Listeners for sliced values.
+            _coreListeners: TListeners<P> = new Set(),
+            _inform = (isEnableCore = true) => {
                 const temp = pick(this.value); // Get new extracted portion of the state.
+
                 if (_isRender && (!_conditionRendering || _conditionRendering(temp))) {
                     _value = temp; // Update sliced value if conditions are met.
-                    listeners.forEach(listener => listener(temp)); // Notify listeners of sliced value change.
+                    _listeners.forEach(listener => listener(temp)); // Notify listeners of sliced value change.
                 }
+
+                isEnableCore && _coreListeners.forEach(listener => listener(temp));
             },
-            use = useCore(listeners, () => _value), // Core function for reactivity with sliced values.
+            use = useCore(_listeners, () => _value), // Core function for reactivity with sliced values.
             control = {
                 value: _value,
                 use,
-                watch: watchCore(listeners), // Watch changes for sliced values.
+                watch: watchCore(_coreListeners), // Watch changes for sliced values.
                 html: htmlCore(use), // Generate HTML output for sliced values.
                 Wrap: WrapCore(use), // Wrapper component for sliced values with reactivity.
                 HardWrap: HardWrapCore(use), // Hard wrapper component for more control over rendering of sliced values.
                 stop: () => (_isRender = false), // Stop rendering updates for sliced values.
                 resume: () => {
                     _isRender = true; // Resume rendering updates for sliced values.
-                    _inform(); // Inform listeners about any changes after resuming.
+                    _inform(false); // Inform listeners about any changes after resuming.
                 },
                 conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb), // Set condition for rendering sliced values.
-                DevTool: devTool(HardWrapCore(use)) // Devtool component of slice
+                DevTool: devTool(HardWrapCore(useCore(_coreListeners, () => pick(this.value)))) // Devtool component of slice
             };
 
         // Add a listener to inform when the original state changes affecting the sliced output.
@@ -219,7 +226,7 @@ class Signify<T = unknown> {
     /**
      * Devtool component of signify
      */
-    readonly DevTool = devTool(this.HardWrap);
+    readonly DevTool = devTool(HardWrapCore(useCore(this.#coreListeners, () => this.value)));
 }
 
 /**
