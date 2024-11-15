@@ -1,6 +1,6 @@
 # React Signify
 
-![image](https://files.notice.studio/workspaces/d8b84700-32ef-4e9d-9d5e-3eebb0e5e197/7261764d-6870-4fee-9de9-379ad2e9f80a.png)
+![image](https://files.notice.studio/workspaces/d8b84700-32ef-4e9d-9d5e-3eebb0e5e197/ee5da14e-f977-4016-a664-4169e7888ccf.png)
 
 # Introduction
 
@@ -11,7 +11,7 @@ Advantages of the library:
 -   Simple syntax
 -   Efficient re-render control support
 
-# Project Information
+# Project information
 
 -   Git: [https://github.com/VietCPQ94/react-signify](https://github.com/VietCPQ94/react-signify)
 -   NPM: [https://www.npmjs.com/package/react-signify](https://www.npmjs.com/package/react-signify)
@@ -30,7 +30,7 @@ yarn add react-signify
 
 # Overview
 
-## Initialize
+## Initialization
 
 You can initialize Signify in any file, refer to the following example
 
@@ -40,11 +40,11 @@ import { signify } from 'react-signify';
 const sCount = signify(0);
 ```
 
-Here we create a variable `sCount` with an initial value of `0`.
+Here we create a variable `sCount` with the initial value of `0`.
 
 ## Used in many places
 
-Simple to use with module export/import tool.
+Simple usage with module export/import tool.
 Component A (export Signify)
 
 ```tsx
@@ -79,9 +79,9 @@ export default function ComponentB() {
 
 From here we can see the flexibility of Signify, simple declaration, and usage everywhere.
 
-## Basic feature
+## Basic features
 
-### Display on the interface
+### Display on interface
 
 We will use the `html` attribute to display the value on the interface.
 
@@ -117,13 +117,13 @@ export default function App() {
 }
 ```
 
-Pressing the button will change the value of Signify and automatically update it on the interface.
+Pressing the button will change the value of Signify and be automatically updated on the interface.
 
-## Advanced feature
+## Advanced features
 
 ### Use
 
-Feature that allows to get the value of Signify and use it as a component state.
+Feature allows to get the value of Signify and use it as a component state.
 
 ```tsx
 import { useEffect } from 'react';
@@ -149,7 +149,7 @@ export default function App() {
 
 ### watch
 
-Feature that allows to track the value changes of Signify safely.
+Feature allows to track the value changes of Signify safely.
 
 ```tsx
 import { signify } from 'react-signify';
@@ -170,7 +170,7 @@ export default function App() {
 
 ### Wrap
 
-Feature to apply the value of Signify in a specific interface area.
+Feature applies the value of Signify in a specific interface area.
 
 ```tsx
 import { signify } from 'react-signify';
@@ -195,7 +195,7 @@ export default function App() {
 
 ### Hardwrap
 
-Feature to apply the value of Signify in a UI area and restrict unnecessary re-renders when the parent component re-renders.
+Feature applying the value of Signify in a UI area and limiting unnecessary re-renders when the parent component re-renders.
 
 ```tsx
 import { signify } from 'react-signify';
@@ -220,7 +220,7 @@ export default function App() {
 
 ### reset
 
-Tool to restore the default value.
+Tool allows to restore the default value.
 
 ```tsx
 import { signify } from 'react-signify';
@@ -234,6 +234,7 @@ sCount.reset();
 
 [Reference API](https://reactsignify.dev?page=178ffe42-6184-4973-8c66-4990023792cb)
 [Render & Update](https://reactsignify.dev?page=6fea6251-87d1-4066-97a1-ff3393ded797)
-[Understand Signify](https://reactsignify.dev?page=a022737b-5f0e-47a5-990f-fa9a3b62662d)
+[Devtool](https://reactsignify.dev?page=e5e11cc8-10a6-4979-90a4-a310e9f5c8b8)
 [Style Guide](https://reactsignify.dev?page=074944b4-eb6c-476f-b293-e8768f45e5dc)
 [Structure](https://reactsignify.dev?page=159467bd-4bed-4d5f-af11-3b9bb20fc9d6)
+[Understand Signify](https://reactsignify.dev?page=a022737b-5f0e-47a5-990f-fa9a3b62662d)
