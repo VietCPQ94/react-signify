@@ -12,6 +12,10 @@ const copyBuffer = (cur: any) => {
 
 // Main function to deep clone an object with options
 export const deepClone = (opts: any) => {
+    if (typeof opts !== 'object' && [null, undefined].includes(opts)) {
+        return opts;
+    }
+
     // Map to hold custom constructors and their cloning functions
     const constructorHandlers = new Map();
     // Add a handler for Date objects
