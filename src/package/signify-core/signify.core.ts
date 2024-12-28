@@ -1,5 +1,6 @@
-import React, { DependencyList, memo, useLayoutEffect, useState } from 'react';
+import React, { DependencyList, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { TConvertValueCb, TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
+import { deepCompare } from '../utils/objectCompare';
 
 /**
  * watchCore is a custom hook that subscribes to a set of listeners.
@@ -28,23 +29,31 @@ export const watchCore =
  *
  * @param listeners - A collection of listeners for state changes.
  * @param getValue - A function to retrieve the current value from the state.
- * @returns A function that takes an optional value conversion function.
+ * @returns A function that takes an optional value conversion function. v => v as Readonly<P>
  */
 export const useCore =
     <T>(listeners: TListeners<T>, getValue: () => T) =>
-    <P = undefined>(pickValue: TConvertValueCb<T, P> = v => v as Readonly<P>) => {
+    <P = undefined>(pickValue?: TConvertValueCb<T, P>) => {
         const trigger = useState({})[1];
+        const listener = useMemo(() => {
+            let temp = pickValue?.(getValue());
+            const listenerFunc = () => {
+                if (pickValue && deepCompare(temp, pickValue(getValue()))) {
+                    return;
+                }
+                trigger({});
+            };
+            listeners.add(listenerFunc);
+            return listenerFunc;
+        }, []);
 
-        useLayoutEffect(() => {
-            const listener = () => trigger({});
-            listeners.add(listener);
-
+        useEffect(() => {
             return () => {
                 listeners.delete(listener);
             };
         }, []);
 
-        return pickValue(getValue()) as P extends undefined ? T : P;
+        return (pickValue ? pickValue(getValue()) : getValue()) as P extends undefined ? T : P;
     };
 
 /**
