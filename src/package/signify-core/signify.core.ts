@@ -38,9 +38,15 @@ export const useCore =
         const listener = useMemo(() => {
             let temp = pickValue?.(getValue());
             const listenerFunc = () => {
-                if (pickValue && deepCompare(temp, pickValue(getValue()))) {
-                    return;
+                if (pickValue) {
+                    let newTemp = pickValue(getValue());
+
+                    if (deepCompare(temp, newTemp)) {
+                        return;
+                    }
+                    temp = newTemp;
                 }
+
                 trigger({});
             };
             listeners.add(listenerFunc);
