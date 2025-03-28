@@ -1,6 +1,6 @@
-import React, { DependencyList, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { TConvertValueCb, TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
+import React, { DependencyList, memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { deepCompare } from '../utils/objectCompare';
+import { TConvertValueCb, TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
 
 /**
  * watchCore is a custom hook that subscribes to a set of listeners.
@@ -35,27 +35,29 @@ export const useCore =
     <T>(listeners: TListeners<T>, getValue: () => T) =>
     <P = undefined>(pickValue?: TConvertValueCb<T, P>) => {
         const trigger = useState({})[1];
-        const listener = useMemo(() => {
-            let temp = pickValue?.(getValue());
-            const listenerFunc = () => {
-                if (pickValue) {
-                    let newTemp = pickValue(getValue());
+        const listener = useRef(
+            (() => {
+                let temp = pickValue?.(getValue());
+                const listenerFunc = () => {
+                    if (pickValue) {
+                        let newTemp = pickValue(getValue());
 
-                    if (deepCompare(temp, newTemp)) {
-                        return;
+                        if (deepCompare(temp, newTemp)) {
+                            return;
+                        }
+                        temp = newTemp;
                     }
-                    temp = newTemp;
-                }
 
-                trigger({});
-            };
-            listeners.add(listenerFunc);
-            return listenerFunc;
-        }, []);
+                    trigger({});
+                };
+                return listenerFunc;
+            })()
+        );
 
         useEffect(() => {
+            listeners.add(listener.current);
             return () => {
-                listeners.delete(listener);
+                listeners.delete(listener.current);
             };
         }, []);
 
