@@ -61,7 +61,9 @@ import { sCount } from './store';
 export default function ComponentA() {
     const countValue = sCount.use();
     const handleUp = () => {
-        sCount.set(pre => (pre.value += 1));
+        sCount.set(pre => {
+            pre.value += 1;
+        });
     };
 
     return (
@@ -108,7 +110,9 @@ export default function App() {
     };
 
     const handleUp = () => {
-        sCount.set(pre => (pre.value += 1));
+        sCount.set(pre => {
+            pre.value += 1;
+        });
     };
 
     return (
@@ -190,7 +194,9 @@ const sCount = signify(0);
 
 export default function App() {
     const handleUp = () => {
-        sCount.set(pre => (pre.value += 1));
+        sCount.set(pre => {
+            pre.value += 1;
+        });
     };
     return (
         <div>
@@ -218,7 +224,9 @@ const sCount = signify(0);
 
 export default function App() {
     const handleUp = () => {
-        sCount.set(pre => (pre.value += 1));
+        sCount.set(pre => {
+            pre.value += 1;
+        });
     };
     return (
         <div>
