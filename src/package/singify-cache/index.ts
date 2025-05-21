@@ -2,8 +2,8 @@ import { TCacheConfig, TCacheSolution } from './cache.model';
 
 // Define a cache solution object that maps cache types to their respective storage mechanisms
 const cacheSolution: TCacheSolution = {
-    LocalStorage: localStorage, // Using the localStorage API for persistent storage
-    SesionStorage: sessionStorage // Using the sessionStorage API for temporary storage
+    LocalStorage: () => localStorage, // Using the localStorage API for persistent storage
+    SesionStorage: () => sessionStorage // Using the sessionStorage API for temporary storage
 };
 
 /**
@@ -18,15 +18,19 @@ const cacheSolution: TCacheSolution = {
  */
 export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T => {
     if (cacheInfo?.key) {
+        if (typeof window === 'undefined') {
+            throw new Error('The cache feature is not recommended for Server-Side Rendering. Please remove the cache properties from the Signify variable.');
+        }
+        
         const mainType = cacheInfo?.type ?? 'LocalStorage', // Default to LocalStorage if no type is provided
-            tempValue = cacheSolution[mainType].getItem(cacheInfo.key); // Retrieve item from storage
+            tempValue = cacheSolution[mainType]().getItem(cacheInfo.key); // Retrieve item from storage
 
         if (tempValue) {
             return JSON.parse(tempValue); // Return parsed value if found in storage
         }
 
         // Set initial value in storage if not found
-        cacheSolution[mainType].setItem(cacheInfo.key, JSON.stringify(initialValue));
+        cacheSolution[mainType]().setItem(cacheInfo.key, JSON.stringify(initialValue));
     }
 
     return initialValue; // Return a deep copy of the initial value
@@ -44,6 +48,6 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T
 export const cacheUpdateValue = <T>(newValue: T, cacheInfo?: TCacheConfig) => {
     if (cacheInfo?.key) {
         // Update item in specified storage
-        cacheSolution[cacheInfo?.type ?? 'LocalStorage'].setItem(cacheInfo.key, JSON.stringify(newValue));
+        cacheSolution[cacheInfo?.type ?? 'LocalStorage']().setItem(cacheInfo.key, JSON.stringify(newValue));
     }
 };

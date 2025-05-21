@@ -10,95 +10,138 @@ const copyBuffer = (cur: any) => {
     return new cur.constructor(cur.buffer.slice(), cur.byteOffset, cur.length);
 };
 
-// Main function to deep clone an object with options
-export const deepClone = (opts: any) => {
-    if (typeof opts !== 'object' && [null, undefined].includes(opts)) {
-        return opts;
+/**
+ * Deep clone any JavaScript object with support for circular references and custom constructors
+ * @param source The object to be cloned
+ * @param options Optional configuration
+ * @returns A deep clone of the source object
+ */
+export const deepClone = <T>(
+    source: T,
+    options?: {
+        constructorHandlers?: [Function, (obj: any, clone: (o: any) => any) => any][]
     }
+): T => {
+    // Handle primitives, null, and undefined directly
+    if (typeof source !== 'object' || source === null) {
+        return source;
+    }
+
+    // Create a WeakMap to track already cloned objects (for circular references)
+    const cloneMap = new WeakMap();
 
     // Map to hold custom constructors and their cloning functions
     const constructorHandlers = new Map();
-    // Add a handler for Date objects
-    constructorHandlers.set(Date, (o: any) => new Date(o));
-    // Add a handler for Map objects
-    constructorHandlers.set(Map, (o: any, fn: any) => new Map(cloneArray(Array.from(o), fn)));
-    // Add a handler for Set objects
-    constructorHandlers.set(Set, (o: any, fn: any) => new Set(cloneArray(Array.from(o), fn)));
-
+    
+    // Add default handlers for common built-in objects
+    constructorHandlers.set(Date, (obj: Date) => new Date(obj));
+    constructorHandlers.set(Map, (obj: Map<any, any>, fn: (o: any) => any) => 
+        new Map(Array.from(obj.entries()).map(([key, val]) => [fn(key), fn(val)])));
+    constructorHandlers.set(Set, (obj: Set<any>, fn: (o: any) => any) => 
+        new Set(Array.from(obj).map(val => fn(val))));
+    constructorHandlers.set(RegExp, (obj: RegExp) => new RegExp(obj.source, obj.flags));
+    constructorHandlers.set(Error, (obj: Error, fn: (o: any) => any) => {
+        const error = new Error(obj.message);
+        if (obj.stack) error.stack = obj.stack;
+        if (obj.cause) error.cause = fn(obj.cause);
+        return error;
+    });
+    constructorHandlers.set(URL, (obj: URL) => new URL(obj.toString()));
+    constructorHandlers.set(Blob, (obj: Blob) => obj.slice(0, obj.size, obj.type));
+    constructorHandlers.set(File, (obj: File) => new File([obj.slice(0, obj.size)], obj.name, { 
+        type: obj.type, 
+        lastModified: obj.lastModified 
+    }));
+    constructorHandlers.set(FileList, (obj: FileList, fn: (o: any) => any) => {
+        // FileList can't be directly constructed, so we clone each File
+        const files = Array.from(obj).map(file => fn(file));
+        // Return the array of files since we can't create a proper FileList
+        return Object.defineProperty(files, 'item', {
+            value: (index: number) => files[index],
+            enumerable: false
+        });
+    });
+    
     // If additional constructor handlers are provided in options, add them to the map
-    if (opts.constructorHandlers) {
-        for (const handler of opts.constructorHandlers) {
+    if (options?.constructorHandlers) {
+        for (const handler of options.constructorHandlers) {
             constructorHandlers.set(handler[0], handler[1]);
         }
     }
 
-    // Function to clone an array using the cloning function provided
-    const cloneArray = (a: any, fn: any) => {
-        // Get the keys of the array
-        const keys = Object.keys(a);
-        // Create a new array to hold cloned values
-        const a2 = new Array(keys.length);
-        // Iterate over each key in the original array
-        for (let i = 0; i < keys.length; i++) {
-            const k: any = keys[i];
-            const cur = a[k];
-            // If the current item is not an object or is null, copy it directly
-            if (typeof cur !== 'object' || cur === null) {
-                a2[k] = cur;
+    // The main clone function
+    const clone = (obj: any): any => {
+        // Handle primitives, null, and undefined directly
+        if (typeof obj !== 'object' || obj === null) {
+            return obj;
+        }
+        
+        // Check if this object has already been cloned (circular reference)
+        if (cloneMap.has(obj)) {
+            return cloneMap.get(obj);
+        }
+        
+        // Handle arrays
+        if (Array.isArray(obj)) {
+            const result: any[] = [];
+            cloneMap.set(obj, result);
+            
+            for (let i = 0; i < obj.length; i++) {
+                result[i] = clone(obj[i]);
             }
-            // If there's a custom handler for the current object's constructor, use it
-            else if (cur.constructor !== Object && constructorHandlers.get(cur.constructor)) {
-                a2[k] = constructorHandlers.get(cur.constructor)(cur, fn);
+            
+            return result;
+        }
+        
+        // Handle ArrayBuffer views
+        if (ArrayBuffer.isView(obj)) {
+            return copyBuffer(obj);
+        }
+        
+        // Handle custom constructor objects
+        if (obj.constructor !== Object && constructorHandlers.has(obj.constructor)) {
+            const result = constructorHandlers.get(obj.constructor)(obj, clone);
+            if (typeof result === 'object' && result !== null) {
+                cloneMap.set(obj, result);
             }
-            // If it's an ArrayBuffer view, use copyBuffer to create a copy
-            else if (ArrayBuffer.isView(cur)) {
-                a2[k] = copyBuffer(cur);
-            }
-            // Otherwise, recursively clone the item
-            else {
-                a2[k] = fn(cur);
+            return result;
+        }
+        
+        // Create a new instance with the same prototype for regular objects
+        const result = Object.create(Object.getPrototypeOf(obj));
+        cloneMap.set(obj, result);
+        
+        // Copy all enumerable properties
+        for (const key of Object.keys(obj)) {
+            result[key] = clone(obj[key]);
+        }
+        
+        // Copy non-enumerable properties that are directly on the object
+        for (const key of Object.getOwnPropertyNames(obj)) {
+            if (!Object.prototype.propertyIsEnumerable.call(obj, key)) {
+                const descriptor = Object.getOwnPropertyDescriptor(obj, key);
+                if (descriptor) {
+                    if (descriptor.value !== undefined) {
+                        descriptor.value = clone(descriptor.value);
+                    }
+                    Object.defineProperty(result, key, descriptor);
+                }
             }
         }
-        return a2;
+        
+        // Copy symbol properties
+        for (const sym of Object.getOwnPropertySymbols(obj)) {
+            const descriptor = Object.getOwnPropertyDescriptor(obj, sym);
+            if (descriptor) {
+                if (descriptor.value !== undefined) {
+                    descriptor.value = clone(descriptor.value);
+                }
+                Object.defineProperty(result, sym, descriptor);
+            }
+        }
+        
+        return result;
     };
 
-    // Function to clone an object recursively
-    const clone = (o: any) => {
-        // If the input is not an object or is null, return it directly
-        if (typeof o !== 'object' || o === null) return o;
-        // If it's an array, use cloneArray to handle cloning
-        if (Array.isArray(o)) return cloneArray(o, clone);
-        // If there's a custom handler for the object's constructor, use it
-        if (o.constructor !== Object && constructorHandlers.get(o.constructor)) {
-            return constructorHandlers.get(o.constructor)(o, clone);
-        }
-        // Create an empty object to hold cloned properties
-        const o2: any = {};
-        // Iterate over each property in the original object
-        for (const k in o) {
-            // Skip properties that are not directly on the object
-            if (Object.hasOwnProperty.call(o, k) === false) continue;
-            const cur = o[k];
-            // If the current property is not an object or is null, copy it directly
-            if (typeof cur !== 'object' || cur === null) {
-                o2[k] = cur;
-            }
-            // If there's a custom handler for the current property's constructor, use it
-            else if (cur.constructor !== Object && constructorHandlers.get(cur.constructor)) {
-                o2[k] = constructorHandlers.get(cur.constructor)(cur, clone);
-            }
-            // If it's an ArrayBuffer view, use copyBuffer to create a copy
-            else if (ArrayBuffer.isView(cur)) {
-                o2[k] = copyBuffer(cur);
-            }
-            // Otherwise, recursively clone the property
-            else {
-                o2[k] = clone(cur);
-            }
-        }
-        return o2;
-    };
-
-    // Start the cloning process with the given options
-    return clone(opts);
+    return clone(source);
 };

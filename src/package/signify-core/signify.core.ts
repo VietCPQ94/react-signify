@@ -1,4 +1,4 @@
-import React, { DependencyList, memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { DependencyList, memo, useLayoutEffect, useRef, useState } from 'react';
 import { deepCompare } from '../utils/objectCompare';
 import { TConvertValueCb, TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
 
@@ -54,7 +54,7 @@ export const useCore =
             })()
         );
 
-        useEffect(() => {
+        useLayoutEffect(() => {
             listeners.add(listener.current);
             return () => {
                 listeners.delete(listener.current);
