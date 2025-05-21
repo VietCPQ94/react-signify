@@ -6,4 +6,4 @@ export type TCacheConfig = {
     key: string;
 };
 
-export type TCacheSolution = { [key in TCacheType]: Storage };
+export type TCacheSolution = { [key in TCacheType]: () => Storage };

@@ -1,7 +1,7 @@
 {
     "name": "react-signify",
     "description": "A JS library for predictable and maintainable global state management",
-    "version": "1.5.7",
+    "version": "1.5.8",
     "type": "module",
     "homepage": "https://reactsignify.dev",
     "repository": {
@@ -29,10 +29,12 @@
     "scripts": {
         "publish": "npm publish --access=public",
         "app-start": "yarn --cwd src/app start",
+        "app-start-ssr": "yarn --cwd src/app-ssr dev",
         "app-test": "yarn --cwd src/app test --watchAll",
         "build": "rollup -c --bundleConfigAsCjs",
         "test": "yarn build && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn app-test",
         "start": "yarn build && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn app-start",
+        "start-ssr": "yarn build && cp -r dist src/app-ssr/node_modules/react-signify && rm -rf src/app-ssr/.next && yarn app-start-ssr",
         "prepack": "yarn build"
     },
     "author": "Viet Cong Pham Quoc",
