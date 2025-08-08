@@ -1,6 +1,6 @@
 import { devTool } from '../signify-devTool';
 import { syncSystem } from '../signify-sync';
-import { cacheUpdateValue, getInitialValue } from '../singify-cache';
+import { cacheUpdateValue, getInitialValue } from '../signify-cache';
 import { deepClone } from '../utils/objectClone';
 import { deepCompare } from '../utils/objectCompare';
 import { HardWrapCore, WrapCore, htmlCore, useCore, watchCore } from './signify.core';
