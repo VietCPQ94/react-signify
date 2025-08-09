@@ -1,4 +1,3 @@
-import { devTool } from '../signify-devTool';
 import { syncSystem } from '../signify-sync';
 import { cacheUpdateValue, getInitialValue } from '../signify-cache';
 import { deepClone } from '../utils/objectClone';
@@ -203,8 +202,7 @@ class Signify<T = unknown> {
                     _isRender = true; // Resume rendering updates for sliced values.
                     _inform(false); // Inform listeners about any changes after resuming.
                 },
-                conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb), // Set condition for rendering sliced values.
-                DevTool: devTool(HardWrapCore(useCore(_coreListeners, () => pick(this.value)))) // Devtool component of slice
+                conditionRendering: (cb: TConditionRendering<P>) => (_conditionRendering = cb) // Set condition for rendering sliced values.
             };
 
         // Add a listener to inform when the original state changes affecting the sliced output.
@@ -222,11 +220,6 @@ class Signify<T = unknown> {
 
         return control as TOmitHtml<P, typeof control>; // Return control object without HTML methods exposed directly.
     };
-
-    /**
-     * Devtool component of signify
-     */
-    readonly DevTool = devTool(HardWrapCore(useCore(this.#coreListeners, () => this.value)));
 }
 
 /**

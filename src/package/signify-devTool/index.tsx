@@ -1,5 +1,5 @@
 import { ElementRef, memo, MouseEvent, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import { HardWrapCore } from '../signify-core/signify.core';
+import { signify } from '../signify-core';
 import { getCookie, setCookie } from '../utils/cookies';
 import './index.css';
 
@@ -14,7 +14,7 @@ const getRandomPastelColor = () => {
 
 type TDevtool<T> = { name: string; pick?: (n: T) => any; color?: string };
 
-export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
+export const devTool = <T,>(item: ReturnType<typeof signify<T>>) =>
     memo(
         ({ name, pick = n => n, color }: TDevtool<T>) => {
             const popup = useRef<HTMLDivElement | null>(null);
@@ -138,18 +138,18 @@ export const devTool = <T,>(HardWrap: ReturnType<typeof HardWrapCore<T>>) =>
                 <div ref={popup} className="signify_popup">
                     <div style={{ backgroundColor: color ?? getRandomPastelColor() }} className="signify_popup_header" onMouseDown={headerMouseDown}>
                         <label className="signify_popup_header_label">
-                            <HardWrap>
+                            <item.HardWrap>
                                 {() => (
                                     <>
                                         {name} - {++renderCount}
                                     </>
                                 )}
-                            </HardWrap>
+                            </item.HardWrap>
                         </label>
                         <span className="signify_popup_header_button" onClick={handleFontSize(true)} dangerouslySetInnerHTML={{ __html: '&bigtriangleup;' }}></span>
                         <span className="signify_popup_header_button" onClick={handleFontSize(false)} dangerouslySetInnerHTML={{ __html: '&bigtriangledown;' }}></span>
                     </div>
-                    <HardWrap>{(n: T) => <pre className="signify_popup_json_viewer" dangerouslySetInnerHTML={{ __html: syntaxHighlight(JSON.stringify(pick(n), null, 2)) }}></pre>}</HardWrap>
+                    <item.HardWrap>{(n: T) => <pre className="signify_popup_json_viewer" dangerouslySetInnerHTML={{ __html: syntaxHighlight(JSON.stringify(pick(n), null, 2)) }}></pre>}</item.HardWrap>
 
                     <div onMouseDown={resizeMouseDown} className="signify_popup_resizer"></div>
                 </div>
