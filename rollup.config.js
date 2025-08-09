@@ -15,14 +15,16 @@ export default [
         input: 'src/package/index.ts',
         output: [
             {
-                file: packageJson.main,
+                dir: 'dist/cjs',
                 format: 'cjs',
-                sourcemap: true
+                sourcemap: true,
+                entryFileNames: 'index.js'
             },
             {
-                file: packageJson.module,
+                dir: 'dist',
                 format: 'esm',
-                sourcemap: true
+                sourcemap: true,
+                entryFileNames: 'index.js'
             }
         ],
         plugins: [
@@ -60,7 +62,13 @@ export default [
     },
     {
         input: 'src/package/index.ts',
-        output: [{ file: packageJson.types, format: 'cjs' }],
+        output: [
+            {
+                dir: 'dist',
+                format: 'cjs',
+                entryFileNames: 'index.d.ts'
+            }
+        ],
         plugins: [dts.default()],
         external: [/\.css$/]
     }
