@@ -90,7 +90,7 @@ class Signify<T = unknown> {
      *
      * @param v - New value or a callback to compute the new value based on current state.
      */
-    readonly set = (v: T | TSetterCallback<T>) => {
+    readonly set = (v: T | TSetterCallback<T>, isForceUpdate = false) => {
         let tempVal: T;
 
         if (typeof v === 'function') {
@@ -102,7 +102,7 @@ class Signify<T = unknown> {
         }
 
         // Check if the new value is different and meets update conditions before updating.
-        if (!deepCompare(this.value, tempVal) && (!this.#conditionUpdating || this.#conditionUpdating(this.value, tempVal))) {
+        if (isForceUpdate || (!deepCompare(this.value, tempVal) && (!this.#conditionUpdating || this.#conditionUpdating(this.value, tempVal)))) {
             this.#forceUpdate(tempVal); // Perform forced update if conditions are satisfied.
         }
     };
