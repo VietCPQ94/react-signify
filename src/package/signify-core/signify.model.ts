@@ -1,4 +1,4 @@
-import { TCacheConfig } from '../singify-cache/cache.model';
+import { TCacheConfig } from '../signify-cache/cache.model';
 
 export type TSignifyConfig = {
     cache?: TCacheConfig;

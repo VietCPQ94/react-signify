@@ -3,7 +3,7 @@ import { TCacheConfig, TCacheSolution } from './cache.model';
 // Define a cache solution object that maps cache types to their respective storage mechanisms
 const cacheSolution: TCacheSolution = {
     LocalStorage: () => localStorage, // Using the localStorage API for persistent storage
-    SesionStorage: () => sessionStorage // Using the sessionStorage API for temporary storage
+    SessionStorage: () => sessionStorage // Using the sessionStorage API for temporary storage
 };
 
 /**
@@ -21,7 +21,7 @@ export const getInitialValue = <T>(initialValue: T, cacheInfo?: TCacheConfig): T
         if (typeof window === 'undefined') {
             throw new Error('The cache feature is not recommended for Server-Side Rendering. Please remove the cache properties from the Signify variable.');
         }
-        
+
         const mainType = cacheInfo?.type ?? 'LocalStorage', // Default to LocalStorage if no type is provided
             tempValue = cacheSolution[mainType]().getItem(cacheInfo.key); // Retrieve item from storage
 

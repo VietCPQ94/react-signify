@@ -1,7 +1,7 @@
 {
     "name": "react-signify",
     "description": "A JS library for predictable and maintainable global state management",
-    "version": "1.5.8",
+    "version": "1.6.0",
     "type": "module",
     "homepage": "https://reactsignify.dev",
     "repository": {
@@ -32,9 +32,9 @@
         "app-start-ssr": "yarn --cwd src/app-ssr dev",
         "app-test": "yarn --cwd src/app test --watchAll",
         "build": "rollup -c --bundleConfigAsCjs",
-        "test": "yarn build && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn app-test",
-        "start": "yarn build && cp -r dist src/app/node_modules/react-signify && rm -rf src/app/node_modules/.cache && yarn app-start",
-        "start-ssr": "yarn build && cp -r dist src/app-ssr/node_modules/react-signify && rm -rf src/app-ssr/.next && yarn app-start-ssr",
+        "test": "yarn build && cp -r dist src/app/node_modules/react-signify && cp package.json src/app/node_modules/react-signify/ && rm -rf src/app/node_modules/.cache && yarn app-test",
+        "start": "yarn build && cp -r dist src/app/node_modules/react-signify && cp package.json src/app/node_modules/react-signify/ && rm -rf src/app/node_modules/.cache && yarn app-start",
+        "start-ssr": "yarn build && cp -r dist src/app-ssr/node_modules/react-signify && cp package.json src/app-ssr/node_modules/react-signify/ && rm -rf src/app-ssr/.next && yarn app-start-ssr",
         "prepack": "yarn build"
     },
     "author": "Viet Cong Pham Quoc",
@@ -44,7 +44,12 @@
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
-            "default": "./dist/cjs/index.cjs"
+            "default": "./dist/cjs/index.js"
+        },
+        "./devtool": {
+            "types": "./dist/devtool.d.ts",
+            "import": "./dist/devtool.js",
+            "require": "./dist/cjs/devtool.js"
         }
     },
     "files": [

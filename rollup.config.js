@@ -11,18 +11,70 @@ import path from 'path';
 const packageJson = require('./package.json');
 
 export default [
+    // Build main index file
     {
         input: 'src/package/index.ts',
         output: [
             {
-                file: packageJson.main,
+                dir: 'dist/cjs',
                 format: 'cjs',
-                sourcemap: true
+                sourcemap: true,
+                entryFileNames: 'index.js'
             },
             {
-                file: packageJson.module,
+                dir: 'dist',
                 format: 'esm',
-                sourcemap: true
+                sourcemap: true,
+                entryFileNames: 'index.js'
+            }
+        ],
+        plugins: [
+            alias({
+                entries: [
+                    { find: 'react', replacement: path.resolve(__dirname, 'node_modules/react') },
+                    { find: 'react-dom', replacement: path.resolve(__dirname, 'node_modules/react-dom') }
+                ]
+            }),
+            resolve({
+                extensions: ['.js', '.jsx', '.ts', '.tsx']
+            }),
+            commonjs({
+                include: /node_modules/
+            }),
+            peerDepsExternal(),
+            typescript({ tsconfig: './tsconfig.json' }),
+            terser({
+                output: {
+                    comments: false
+                },
+                compress: {
+                    drop_console: true,
+                    drop_debugger: true,
+                    pure_funcs: ['console.info', 'console.debug', 'console.warn'],
+                    passes: 3,
+                    dead_code: true,
+                    keep_fargs: false,
+                    keep_fnames: false
+                }
+            })
+        ],
+        external: ['react', 'react-dom']
+    },
+    // Build DevTool file separately
+    {
+        input: 'src/package/signify-devTool/index.tsx',
+        output: [
+            {
+                dir: 'dist/cjs',
+                format: 'cjs',
+                sourcemap: true,
+                entryFileNames: 'devtool.js'
+            },
+            {
+                dir: 'dist',
+                format: 'esm',
+                sourcemap: true,
+                entryFileNames: 'devtool.js'
             }
         ],
         plugins: [
@@ -58,10 +110,30 @@ export default [
         ],
         external: ['react', 'react-dom']
     },
+    // Generate type definitions for main index
     {
         input: 'src/package/index.ts',
-        output: [{ file: packageJson.types, format: 'cjs' }],
+        output: [
+            {
+                dir: 'dist',
+                format: 'cjs',
+                entryFileNames: 'index.d.ts'
+            }
+        ],
         plugins: [dts.default()],
         external: [/\.css$/]
+    },
+    // Generate type definitions for DevTool
+    {
+        input: 'src/package/signify-devTool/index.tsx',
+        output: [
+            {
+                dir: 'dist',
+                format: 'cjs',
+                entryFileNames: 'devtool.d.ts'
+            }
+        ],
+        plugins: [dts.default()],
+        external: [/\.css$/, 'react', 'react-dom']
     }
 ];

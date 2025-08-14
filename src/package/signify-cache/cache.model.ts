@@ -1,5 +1,5 @@
 // Default : value only save in memory
-type TCacheType = 'LocalStorage' | 'SesionStorage';
+type TCacheType = 'LocalStorage' | 'SessionStorage';
 
 export type TCacheConfig = {
     type?: TCacheType;
