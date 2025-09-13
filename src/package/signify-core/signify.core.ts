@@ -2,6 +2,13 @@ import React, { DependencyList, memo, useLayoutEffect, useRef, useState } from '
 import { deepCompare } from '../utils/objectCompare';
 import { TConvertValueCb, TGetValueCb, TListeners, TUseValueCb, TWrapProps } from './signify.model';
 
+export const subscribeCore =
+    <T>(listeners: TListeners<T>) =>
+    (callback: TUseValueCb<T>) => {
+        listeners.add(callback);
+        return { unsubscribe: () => listeners.delete(callback) };
+    };
+
 /**
  * watchCore is a custom hook that subscribes to a set of listeners.
  * It allows the provided callback to be invoked whenever the state changes.
