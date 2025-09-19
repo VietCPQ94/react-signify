@@ -94,7 +94,7 @@ class Signify<T = unknown> {
         let tempVal: T;
 
         if (typeof v === 'function') {
-            let params = { value: deepClone(this.#value) };
+            let params = { value: this.#value };
             (v as TSetterCallback<T>)(params); // Determine new value.
             tempVal = params.value;
         } else {
