@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { signify } from 'react-signify';
 
-export const sCount = signify(0, { syncKey: 'count' });
+export const sCount = signify(0);
 
 export const sUser = signify({
     name: 'Viet',
@@ -28,16 +28,6 @@ export default function App() {
     const [isWatchSlice, setIsWatchSlice] = useState(false);
     const [isWatchUser, setIsWatchUser] = useState(false);
     const [isWatchLs, setIsWatchLs] = useState(false);
-
-    useEffect(() => {
-        const { unsubscribe } = sCount.subscribe(v => {
-            console.log('sCount', v);
-        });
-
-        return () => {
-            unsubscribe();
-        };
-    }, []);
 
     sCount.watch(v => {
         setIsWatch(true);
